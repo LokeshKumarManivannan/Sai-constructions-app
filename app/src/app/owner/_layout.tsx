@@ -23,6 +23,7 @@ export default function OwnerLayout() {
         <Stack.Screen name="projects/new" options={{ title: t('owner.newProject') }} />
         <Stack.Screen name="projects/[id]" options={{ title: t('owner.projects') }} />
         <Stack.Screen name="payment" options={{ title: t('payments.log') }} />
+        <Stack.Screen name="extra" options={{ title: t('extra.add') }} />
         <Stack.Screen name="supervisors" options={{ title: t('owner.supervisors') }} />
       </Stack>
     </RoleGate>

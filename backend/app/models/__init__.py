@@ -1,4 +1,5 @@
 from app.models.audit import AuditLog
+from app.models.change_orders import ChangeOrder, ChangeOrderStatus
 from app.models.files import StoredFile
 from app.models.payments import CustomerPayment, PaymentMode, PaymentStatus
 from app.models.common import Language, MilestoneStatus, ProjectStatus, Role, Trade
@@ -8,6 +9,8 @@ from app.models.users import OtpCode, User
 
 __all__ = [
     "AuditLog",
+    "ChangeOrder",
+    "ChangeOrderStatus",
     "Customer",
     "CustomerPayment",
     "Invite",

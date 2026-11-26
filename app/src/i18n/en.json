@@ -91,7 +91,8 @@
     "inviteHint": "Send this link to the customer on WhatsApp or SMS. It works once and expires in 7 days.",
     "invites": "Invites",
     "invalidAmount": "Enter a valid amount",
-    "milestonesMismatch": "Milestones do not add up to the contract value ({{value}})"
+    "milestonesMismatch": "Milestones do not add up to the contract value ({{value}})",
+    "overview": "Overview"
   },
   "supervisor": {
     "mySites": "My sites",
@@ -173,5 +174,40 @@
     "confirmed": "Confirmed",
     "disputed": "Disputed",
     "void": "Cancelled"
+  },
+  "extra": {
+    "title": "Extra work",
+    "add": "Add extra work",
+    "what": "What is the extra work?",
+    "details": "Details (optional)",
+    "amount": "Extra cost (₹)",
+    "trade": "Which work?",
+    "photos": "Photos (optional)",
+    "saveDraft": "Save as draft",
+    "saveSend": "Save and send to customer",
+    "send": "Send to customer",
+    "delete": "Delete draft",
+    "start": "Work started",
+    "complete": "Work finished",
+    "revise": "Change and send again",
+    "approve": "Approve",
+    "reject": "Reject",
+    "approveQuestion": "Approve this extra work? {{amount}} will be added to your total.",
+    "yesApprove": "Yes, approve",
+    "rejectReason": "Why? (optional)",
+    "sendReject": "Reject",
+    "decide": "Please approve or reject",
+    "none": "No extra work",
+    "version": "Version {{v}}",
+    "approvedBy": "Approved by {{name}}",
+    "rejectedBy": "Rejected by {{name}}"
+  },
+  "cstatus": {
+    "draft": "Draft",
+    "sent": "Waiting for customer",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "in_progress": "Work going on",
+    "done": "Done"
   }
 }

@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
 import { useMyProject } from '@/features/customer/useMyProject';
+import { ChangeOrderList } from '@/features/changeOrders/ChangeOrderList';
 import { PaymentList } from '@/features/payments/PaymentList';
 import { SummaryCard } from '@/features/payments/SummaryCard';
 import { formatINR } from '@/lib/money';
@@ -49,6 +50,7 @@ export default function CustomerMoney() {
           onPress={() => router.push({ pathname: '/customer/pay', params: { projectId: project.id } })}
         />
       )}
+      {signed && <ChangeOrderList projectId={project.id} viewer="customer" onChanged={reload} />}
       {payments.data && <PaymentList payments={payments.data} viewer="customer" onChanged={reload} />}
 
       {signed && (
