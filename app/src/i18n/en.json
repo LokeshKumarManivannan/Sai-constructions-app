@@ -139,7 +139,7 @@
     "needsYou": "Please check these",
     "history": "Payment history",
     "noPayments": "No payments yet",
-    "log": "Record a payment",
+    "log": "Record money received",
     "logCustomer": "I made a payment",
     "amount": "Amount (₹)",
     "mode": "How was it paid?",
@@ -242,7 +242,7 @@
     "untagged": "Payments missing details",
     "fixUntagged": "Fix missing details ({{n}})",
     "allFixed": "All payments have details",
-    "paySomeone": "Record payment",
+    "paySomeone": "Money paid",
     "cashBook": "Cash box",
     "ledger": "Site money",
     "payees": "Payees",
@@ -294,7 +294,9 @@
     "siteMoneyNote": "In and out so far. Expected margin = contract + approved extra work − spent so far.",
     "inMinusOut": "In − out so far",
     "expectedMargin": "Expected margin",
-    "contract": "Contract + extras"
+    "contract": "Contract + extras",
+    "moneyIn": "Money received",
+    "pickProjectIn": "Which project is this money for?"
   },
   "ptype": {
     "labour": "Labour",

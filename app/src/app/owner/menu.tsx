@@ -19,7 +19,8 @@ export default function OwnerMenu() {
       { icon: 'people', label: t('menu.supervisors'), href: '/owner/supervisors' },
     ],
     [
-      { icon: 'create', label: t('books.paySomeone'), href: '/owner/pay-out' },
+      { icon: 'arrow-down-circle', label: t('books.moneyIn'), href: '/owner/payment' },
+      { icon: 'arrow-up-circle', label: t('books.paySomeone'), href: '/owner/pay-out' },
       { icon: 'list', label: t('menu.allPayments'), href: '/owner/books' },
       { icon: 'people-circle', label: t('menu.payees'), href: '/owner/payees' },
       { icon: 'wallet', label: t('menu.cashBox'), href: '/owner/cashbook' },

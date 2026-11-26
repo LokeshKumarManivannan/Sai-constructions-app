@@ -79,10 +79,10 @@ export function BooksCard() {
       )}
 
       <View style={{ flexDirection: 'row', marginTop: space.xs, borderTopWidth: 1, borderColor: 'rgba(255,255,255,0.15)', paddingTop: space.s }}>
-        <Shortcut icon="create" label={t('books.paySomeone')} onPress={() => router.push('/owner/pay-out')} />
+        <Shortcut icon="arrow-down-circle" label={t('books.moneyIn')} onPress={() => router.push('/owner/payment')} />
+        <Shortcut icon="arrow-up-circle" label={t('books.paySomeone')} onPress={() => router.push('/owner/pay-out')} />
         <Shortcut icon="stats-chart" label={t('books.ledger')} onPress={() => router.push('/owner/books')} />
         <Shortcut icon="download" label={t('menu.downloads')} onPress={() => router.push('/owner/downloads')} />
-        <Shortcut icon="menu" label={t('menu.title')} onPress={() => router.push('/owner/menu')} />
       </View>
     </HeroCard>
   );
