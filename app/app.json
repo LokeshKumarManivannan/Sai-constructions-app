@@ -36,6 +36,12 @@
           "cameraPermission": "Sai Constructions uses the camera to photograph bills and site progress.",
           "microphonePermission": false
         }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Sai Constructions records where site progress photos were taken."
+        }
       ]
     ],
     "scheme": "saiconstructions",

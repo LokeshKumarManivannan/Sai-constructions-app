@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
 import { openUrl } from '@/lib/share';
@@ -18,7 +19,7 @@ export default function MySites() {
       {data?.length === 0 && <Muted>{t('supervisor.noSites')}</Muted>}
       {!!data?.length && <SpeakButton text={`${t('supervisor.mySites')}. ${spoken}`} />}
       {data?.map((s) => (
-        <Card key={s.id}>
+        <Card key={s.id} onPress={() => router.push(`/supervisor/site/${s.id}`)}>
           <Title>{s.name}</Title>
           <Row>
             {s.my_trades.map((tr) => (

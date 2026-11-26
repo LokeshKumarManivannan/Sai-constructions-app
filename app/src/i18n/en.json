@@ -209,5 +209,18 @@
     "rejected": "Rejected",
     "in_progress": "Work going on",
     "done": "Done"
+  },
+  "progress": {
+    "title": "Progress",
+    "add": "Add update",
+    "note": "What was done? (optional)",
+    "photos": "Photos",
+    "save": "Save update",
+    "all": "All",
+    "none": "No updates yet",
+    "by": "by {{name}}",
+    "stage": "Stage (optional)",
+    "trade": "Work type",
+    "needPhoto": "Add a photo or a note"
   }
 }
