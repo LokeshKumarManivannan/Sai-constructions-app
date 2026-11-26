@@ -123,8 +123,53 @@ def site_ledger(db: Session) -> list[dict]:
             .group_by(Expense.project_id)
         ).all()
     )
+    from app.services.change_orders import approved_total
+
     rows = []
     for p in db.scalars(select(Project).order_by(Project.created_at.desc())):
         r, s = int(received.get(p.id, 0)), int(spent.get(p.id, 0))
-        rows.append({"project_id": p.id, "project_name": p.name, "received_paise": r, "spent_paise": s, "net_paise": r - s})
+        extras = approved_total(db, p.id)
+        rows.append(
+            {
+                "project_id": p.id,
+                "project_name": p.name,
+                "received_paise": r,
+                "spent_paise": s,
+                "net_paise": r - s,
+                "contract_paise": p.contract_value_paise,
+                "extras_paise": extras,
+                # what the job should leave once everything is collected, if no more is spent
+                "expected_margin_paise": p.contract_value_paise + extras - s,
+            }
+        )
     return rows
+
+
+def month_totals(db: Session, today: date) -> tuple[int, int]:
+    """Confirmed money received and money paid out (site costs and general, not advances) this calendar month."""
+    start = today.replace(day=1)
+    received = db.scalar(
+        select(func.coalesce(func.sum(CustomerPayment.amount_paise), 0)).where(
+            CustomerPayment.status == PaymentStatus.confirmed, CustomerPayment.paid_on >= start, CustomerPayment.paid_on <= today
+        )
+    )
+    spent = db.scalar(
+        select(func.coalesce(func.sum(Expense.amount_paise), 0)).where(
+            Expense.status == ExpenseStatus.active,
+            Expense.category.is_distinct_from(ExpenseCategory.advance),
+            Expense.paid_on >= start,
+            Expense.paid_on <= today,
+        )
+    )
+    return int(received), int(spent)
+
+
+def to_collect(db: Session) -> int:
+    """What customers still owe across all signed projects."""
+    from app.models import ProjectStatus
+    from app.services import money
+
+    total = 0
+    for p in db.scalars(select(Project).where(Project.status != ProjectStatus.quote)):
+        total += money.summary(db, p)["outstanding_paise"]
+    return total

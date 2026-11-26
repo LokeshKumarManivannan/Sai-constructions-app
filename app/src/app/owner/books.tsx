@@ -1,5 +1,6 @@
+import { Text } from '@/ui/Text';
 import { useState } from 'react';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
@@ -26,15 +27,26 @@ export default function Books() {
     <Screen>
       <Card>
         <Title>{t('books.ledger')}</Title>
+        <Muted>{t('books.siteMoneyNote')}</Muted>
         {sites.map((s) => (
-          <View key={s.project_id} style={{ paddingVertical: space.s, borderBottomWidth: 1, borderColor: colors.border, gap: 2 }}>
+          <View key={s.project_id} style={{ paddingVertical: space.s, borderTopWidth: 1, borderColor: colors.border, gap: 2 }}>
             <Text style={{ fontSize: font.body, fontWeight: '700' }} onPress={() => router.push(`/owner/projects/${s.project_id}`)}>
               {s.project_name}
             </Text>
-            <Muted>{`${t('books.received')} ${formatINR(s.received_paise)} · ${t('books.spent')} ${formatINR(s.spent_paise)}`}</Muted>
-            <Text style={{ fontSize: font.body, fontWeight: '800', color: s.net_paise < 0 ? colors.bad : colors.good }}>
-              {t('books.net')} {formatINR(s.net_paise)}
-            </Text>
+            <Muted>{`${t('books.received')} ${formatINR(s.received_paise)}  ·  ${t('books.spent')} ${formatINR(s.spent_paise)}`}</Muted>
+            <Muted>{`${t('books.contract')} ${formatINR(s.contract_paise + s.extras_paise)}`}</Muted>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: space.m, marginTop: 2 }}>
+              <View>
+                <Muted>{t('books.inMinusOut')}</Muted>
+                <Text style={{ fontSize: font.body, fontWeight: '800', color: s.net_paise < 0 ? colors.bad : colors.good }}>{formatINR(s.net_paise)}</Text>
+              </View>
+              <View style={{ alignItems: 'flex-end' }}>
+                <Muted>{t('books.expectedMargin')}</Muted>
+                <Text style={{ fontSize: font.body, fontWeight: '800', color: s.expected_margin_paise < 0 ? colors.bad : colors.text }}>
+                  {formatINR(s.expected_margin_paise)}
+                </Text>
+              </View>
+            </View>
           </View>
         ))}
       </Card>

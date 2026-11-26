@@ -12,7 +12,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#F2F0ED",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -42,7 +42,8 @@
         {
           "locationWhenInUsePermission": "Sai Constructions records where site progress photos were taken."
         }
-      ]
+      ],
+      "expo-font"
     ],
     "scheme": "saiconstructions",
     "experiments": {

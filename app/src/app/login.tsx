@@ -1,16 +1,22 @@
 import { useState } from 'react';
+import { Pressable, ScrollView, View } from 'react-native';
 import { Redirect, useLocalSearchParams } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
 import { useAuth } from '@/auth/AuthContext';
 import { homeFor } from '@/auth/RoleGate';
 import { api, ApiError } from '@/lib/api';
 import type { User } from '@/lib/types';
-import { BigButton, Card, ErrorText, Field, Muted, Screen, Title } from '@/ui/components';
+import { BuildingProgress } from '@/ui/BuildingProgress';
+import { BigButton, BrickPattern, ErrorText, Field, Muted } from '@/ui/components';
+import { Wordmark } from '@/ui/header';
+import { Text } from '@/ui/Text';
+import { colors, font, radius, space } from '@/ui/theme';
 
 export default function Login() {
-  const { t } = useTranslation();
-  const { user, signIn } = useAuth();
+  const { t, i18n } = useTranslation();
+  const { user, signIn, setLanguage } = useAuth();
   const params = useLocalSearchParams<{ phone?: string }>();
   const [phone, setPhone] = useState(params.phone ?? '');
   const [step, setStep] = useState<'phone' | 'code'>('phone');
@@ -39,10 +45,7 @@ export default function Login() {
     setBusy(true);
     setError(null);
     try {
-      const r = await api<{ access_token: string; user: User }>('/auth/otp/verify', {
-        method: 'POST',
-        body: { phone, code },
-      });
+      const r = await api<{ access_token: string; user: User }>('/auth/otp/verify', { method: 'POST', body: { phone, code } });
       await signIn(r.access_token, r.user);
     } catch (e) {
       setError(e instanceof ApiError && e.status === 403 ? t('login.notRegistered') : (e as Error).message);
@@ -52,41 +55,57 @@ export default function Login() {
   }
 
   return (
-    <Screen>
-      <Title>{t('login.title')}</Title>
-      <Card>
-        {step === 'phone' ? (
-          <>
-            <Field
-              label={t('login.phone')}
-              value={phone}
-              onChangeText={setPhone}
-              keyboardType="phone-pad"
-              autoComplete="tel"
-              placeholder="98765 43210"
-            />
-            <BigButton label={t('login.sendCode')} icon="chatbox-ellipses" onPress={sendCode} busy={busy} disabled={phone.trim().length < 10} />
-          </>
-        ) : (
-          <>
-            <Muted>
-              {t('login.codeSent')} {phone}
-            </Muted>
-            <Field
-              label={t('login.code')}
-              value={code}
-              onChangeText={(v) => setCode(v.replace(/\D/g, '').slice(0, 6))}
-              keyboardType="number-pad"
-              autoComplete="one-time-code"
-              maxLength={6}
-            />
-            {devCode && <Muted>{t('login.devCode', { code: devCode })}</Muted>}
-            <BigButton label={t('login.verify')} icon="log-in" onPress={verify} busy={busy} disabled={code.length !== 6} />
-            <BigButton label={t('login.changeNumber')} variant="secondary" onPress={() => setStep('phone')} />
-          </>
-        )}
-        <ErrorText>{error}</ErrorText>
-      </Card>
-    </Screen>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.brandDeep }}>
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        <View style={{ padding: space.l, paddingBottom: space.xl * 1.5, overflow: 'hidden' }}>
+          <BrickPattern />
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Wordmark size={18} />
+            <Pressable
+              onPress={() => setLanguage(i18n.language === 'ta' ? 'en' : 'ta')}
+              style={{ paddingHorizontal: 12, paddingVertical: 4, borderRadius: 999, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.55)' }}
+            >
+              <Text style={{ color: colors.brandText, fontWeight: '600' }}>{t('common.language')}</Text>
+            </Pressable>
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: space.l, marginTop: space.xl }}>
+            <View style={{ flex: 1, gap: space.s }}>
+              <Text style={{ fontSize: font.hero + 4, fontWeight: '800', color: colors.brandText, lineHeight: 38 }}>{t('login.headline')}</Text>
+              <Text style={{ fontSize: font.body, color: 'rgba(255,255,255,0.75)' }}>{t('login.sub')}</Text>
+            </View>
+            <BuildingProgress total={5} done={3} size="large" onDark />
+          </View>
+        </View>
+
+        <View style={{ flex: 1, backgroundColor: colors.bg, borderTopLeftRadius: radius.hero, borderTopRightRadius: radius.hero, marginTop: -space.l, padding: space.l, gap: space.m }}>
+          <View style={{ maxWidth: 520, width: '100%', alignSelf: 'center', gap: space.m }}>
+            <Text style={{ fontSize: font.title, fontWeight: '700' }}>{t('login.title')}</Text>
+            {step === 'phone' ? (
+              <>
+                <Field label={t('login.phone')} value={phone} onChangeText={setPhone} keyboardType="phone-pad" autoComplete="tel" placeholder="98765 43210" />
+                <BigButton label={t('login.sendCode')} icon="chatbox-ellipses" onPress={sendCode} busy={busy} disabled={phone.trim().length < 10} />
+              </>
+            ) : (
+              <>
+                <Muted>{`${t('login.codeSent')} ${phone}`}</Muted>
+                <Field
+                  label={t('login.code')}
+                  value={code}
+                  onChangeText={(v) => setCode(v.replace(/\D/g, '').slice(0, 6))}
+                  keyboardType="number-pad"
+                  autoComplete="one-time-code"
+                  maxLength={6}
+                  style={{ fontSize: 26, letterSpacing: 8, textAlign: 'center' }}
+                />
+                {devCode && <Muted>{t('login.devCode', { code: devCode })}</Muted>}
+                <BigButton label={t('login.verify')} icon="log-in" onPress={verify} busy={busy} disabled={code.length !== 6} />
+                <BigButton label={t('login.changeNumber')} variant="secondary" onPress={() => setStep('phone')} />
+              </>
+            )}
+            <ErrorText>{error}</ErrorText>
+          </View>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }

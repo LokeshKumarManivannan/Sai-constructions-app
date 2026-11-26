@@ -15,7 +15,8 @@
     "remove": "Remove",
     "copy": "Copy",
     "copied": "Copied",
-    "comingSoon": "Coming soon"
+    "comingSoon": "Coming soon",
+    "badDate": "Type the date as DD/MM/YYYY, e.g. 05/12/2026"
   },
   "login": {
     "title": "Log in",
@@ -26,7 +27,9 @@
     "verify": "Log in",
     "changeNumber": "Change number",
     "devCode": "Test code: {{code}}",
-    "notRegistered": "This number is not registered with Sai Constructions. Please call us."
+    "notRegistered": "This number is not registered with Sai Constructions. Please call us.",
+    "headline": "Your home, floor by floor.",
+    "sub": "Payments, extra work and site photos for your house, in one place."
   },
   "invite": {
     "title": "You are invited",
@@ -74,8 +77,8 @@
     "plotSize": "Plot size",
     "floors": "Floors",
     "contractValue": "Contract value (₹)",
-    "startDate": "Start date (YYYY-MM-DD)",
-    "targetEndDate": "Target end date (YYYY-MM-DD)",
+    "startDate": "Start date (DD/MM/YYYY)",
+    "targetEndDate": "Target end date (DD/MM/YYYY)",
     "status": "Status",
     "milestones": "Payment milestones",
     "milestoneName": "Milestone name",
@@ -92,7 +95,17 @@
     "invites": "Invites",
     "invalidAmount": "Enter a valid amount",
     "milestonesMismatch": "Milestones do not add up to the contract value ({{value}})",
-    "overview": "Overview"
+    "overview": "Overview",
+    "customer": "Customer",
+    "existingCustomer": "Existing customer",
+    "projectDetails": "Project details",
+    "createProject": "Create project",
+    "searchProjects": "Search project or customer",
+    "morning": "Good morning",
+    "afternoon": "Good afternoon",
+    "evening": "Good evening",
+    "stagesDone": "{{done}} of {{total}} stages done",
+    "noProjectsYet": "No projects yet. Add your first one with New project."
   },
   "supervisor": {
     "mySites": "My sites",
@@ -131,7 +144,7 @@
     "amount": "Amount (₹)",
     "mode": "How was it paid?",
     "reference": "Transaction / UTR / cheque number",
-    "paidOn": "Date paid (YYYY-MM-DD)",
+    "paidOn": "Date paid (DD/MM/YYYY)",
     "milestone": "For which stage? (optional)",
     "note": "Note (optional)",
     "proof": "Photo of payment (optional)",
@@ -159,7 +172,7 @@
     "saved": "Saved. Waiting for the other side to confirm.",
     "markDone": "Work done",
     "markDue": "Ask for payment",
-    "dueDate": "Payment due date (YYYY-MM-DD, optional)",
+    "dueDate": "Payment due date (DD/MM/YYYY, optional)",
     "undo": "Undo",
     "datePaid": "Date paid"
   },
@@ -225,13 +238,13 @@
   },
   "books": {
     "title": "Books",
-    "cashInHand": "Cash in hand",
+    "cashInHand": "Cash in the cash box",
     "untagged": "Payments missing details",
     "fixUntagged": "Fix missing details ({{n}})",
     "allFixed": "All payments have details",
-    "paySomeone": "Pay someone",
-    "cashBook": "Cash book",
-    "ledger": "Site profit",
+    "paySomeone": "Record payment",
+    "cashBook": "Cash box",
+    "ledger": "Site money",
     "payees": "Payees",
     "received": "Received",
     "spent": "Spent",
@@ -273,7 +286,15 @@
     "spentHere": "Spent on this site",
     "confirmed": "Received by them",
     "noEntries": "No entries yet",
-    "date": "Date (YYYY-MM-DD)"
+    "date": "Date (DD/MM/YYYY)",
+    "cashOnlyNote": "Only cash entered in this app: customer cash, cash payments and ATM withdrawals. It is not your bank balance.",
+    "receivedMonth": "Received this month",
+    "spentMonth": "Spent this month",
+    "toCollect": "Still to collect from customers",
+    "siteMoneyNote": "In and out so far. Expected margin = contract + approved extra work − spent so far.",
+    "inMinusOut": "In − out so far",
+    "expectedMargin": "Expected margin",
+    "contract": "Contract + extras"
   },
   "ptype": {
     "labour": "Labour",
@@ -375,5 +396,29 @@
   "warranty": {
     "title": "Warranty",
     "soon": "Warranty details will be added here."
+  },
+  "menu": {
+    "title": "Menu",
+    "projects": "Projects",
+    "customers": "Customers",
+    "supervisors": "Supervisors",
+    "payees": "Payees",
+    "cashBox": "Cash box",
+    "siteMoney": "Site money",
+    "allPayments": "All payments out",
+    "downloads": "Downloads"
+  },
+  "downloads": {
+    "title": "Downloads",
+    "project": "For one project",
+    "pickProject": "Choose a project",
+    "projectStatement": "Project statement (Excel)",
+    "projectBills": "Project bill photos (ZIP)",
+    "year": "For a financial year",
+    "pickYear": "Choose the year (April to March)",
+    "yearStatement": "Year statement for income tax (Excel)",
+    "yearBills": "All bill photos for the year (ZIP)",
+    "note": "Excel files list money received and money paid out with dates, modes and transaction IDs. Each bill photo has the same name in the Excel file and in the ZIP.",
+    "preparing": "Preparing…"
   }
 }

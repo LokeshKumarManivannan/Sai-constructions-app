@@ -1,13 +1,14 @@
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.auth.deps import current_user, require_owner
 from app.db import get_db
-from app.models import Customer, Project, Role, User
-from app.schemas import ProjectIn, ProjectOut, ProjectSiteOut, ProjectUpdate
+from app.models import Customer, Milestone, MilestoneStatus, Project, Role, User
+from app.routers.customers import phone_or_none
+from app.schemas import ProjectIn, ProjectOut, ProjectSiteOut, ProjectUpdate, ProjectWithCustomerIn
 from app.services import audit
 from app.services.access import get_project_for, supervisor_trades, visible_projects_query
 
@@ -25,7 +26,15 @@ def _out(db: Session, user: User, p: Project) -> ProjectOut | ProjectSiteOut:
             my_trades=supervisor_trades(db, user, p.id),
         )
     customer = db.get(Customer, p.customer_id)
-    return ProjectOut.model_validate(p).model_copy(update={"customer_name": customer.name if customer else ""})
+    total, done = db.execute(
+        select(
+            func.count(Milestone.id),
+            func.count(Milestone.id).filter(Milestone.status != MilestoneStatus.pending),
+        ).where(Milestone.project_id == p.id)
+    ).one()
+    return ProjectOut.model_validate(p).model_copy(
+        update={"customer_name": customer.name if customer else "", "milestones_total": total, "milestones_done": done}
+    )
 
 
 @router.get("", response_model=list[ProjectOut] | list[ProjectSiteOut])
@@ -43,6 +52,35 @@ def create_project(body: ProjectIn, db: Session = Depends(get_db), user: User = 
     if db.get(Customer, body.customer_id) is None:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "customer not found")
     p = Project(**body.model_dump(), created_by=user.id)
+    db.add(p)
+    db.flush()
+    audit.record(db, user, "create", "project", p.id, after=audit.snapshot(p))
+    db.commit()
+    return _out(db, user, p)
+
+
+@router.post("/with-customer", response_model=ProjectOut, status_code=201)
+def create_project_with_customer(
+    body: ProjectWithCustomerIn, db: Session = Depends(get_db), user: User = Depends(require_owner)
+):
+    """Create the customer and the project together (one transaction), or attach to an existing customer."""
+    if (body.customer is None) == (body.customer_id is None):
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "give either new customer details or an existing customer")
+    if body.customer_id is not None:
+        customer = db.get(Customer, body.customer_id)
+        if customer is None:
+            raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "customer not found")
+    else:
+        data = body.customer.model_dump()
+        data["phone"] = phone_or_none(body.customer.phone)
+        data["alt_phone"] = phone_or_none(body.customer.alt_phone)
+        if data["phone"] is None:
+            raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "customer phone is required")
+        customer = Customer(**data, created_by=user.id)
+        db.add(customer)
+        db.flush()
+        audit.record(db, user, "create", "customer", customer.id, after=audit.snapshot(customer))
+    p = Project(customer_id=customer.id, **body.project.model_dump(), created_by=user.id)
     db.add(p)
     db.flush()
     audit.record(db, user, "create", "project", p.id, after=audit.snapshot(p))

@@ -4,11 +4,12 @@ import { useTranslation } from 'react-i18next';
 
 import { PhotoPicker } from '@/features/files/PhotoPicker';
 import { api } from '@/lib/api';
-import { isIsoDate, today } from '@/lib/dates';
+import { today } from '@/lib/dates';
 import { rupeesToPaise } from '@/lib/money';
 import { useApi } from '@/lib/useApi';
 import type { ExpenseCategory, ProjectSite } from '@/lib/types';
 import { BigButton, Card, ChipPicker, ErrorText, Field, Muted, Screen } from '@/ui/components';
+import { DateField } from '@/ui/DateField';
 
 const CATS: ExpenseCategory[] = ['labour', 'material', 'transport', 'other'];
 
@@ -21,7 +22,7 @@ export default function SupervisorSpend() {
   const [category, setCategory] = useState<ExpenseCategory>('labour');
   const [reason, setReason] = useState('');
   const [bill, setBill] = useState<string | null>(null);
-  const [paidOn, setPaidOn] = useState(today());
+  const [paidOn, setPaidOn] = useState<string | null>(today());
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -30,7 +31,8 @@ export default function SupervisorSpend() {
 
   async function save() {
     const paise = rupeesToPaise(amount);
-    if (!paise || !isIsoDate(paidOn)) return setError(t('owner.invalidAmount'));
+    if (!paise) return setError(t('owner.invalidAmount'));
+    if (!paidOn) return setError(t('common.badDate'));
     setBusy(true);
     setError(null);
     try {
@@ -60,7 +62,7 @@ export default function SupervisorSpend() {
         <Muted>{t('books.category')}</Muted>
         <ChipPicker options={CATS} value={category} onChange={setCategory} labelOf={(c) => t(`ecat.${c}`)} />
         <Field label={t('books.reason')} value={reason} onChangeText={setReason} />
-        <Field label={t('books.date')} value={paidOn} onChangeText={setPaidOn} />
+        <DateField label={t('books.date')} initial={today()} onChange={(v) => setPaidOn(v || null)} />
         {site && <PhotoPicker projectId={site} label={t('books.bill')} onUploaded={(ids) => setBill(ids[0] ?? null)} />}
         <ErrorText>{error}</ErrorText>
         <BigButton label={t('books.save')} icon="checkmark" onPress={save} busy={busy} disabled={!site || !paidTo || !amount || !reason} />

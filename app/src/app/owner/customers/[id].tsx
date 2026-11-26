@@ -1,4 +1,4 @@
-import { Text } from 'react-native';
+import { Text } from '@/ui/Text';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 

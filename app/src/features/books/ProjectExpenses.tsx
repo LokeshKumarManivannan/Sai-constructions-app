@@ -1,4 +1,4 @@
-import { Text } from 'react-native';
+import { Text } from '@/ui/Text';
 import { useTranslation } from 'react-i18next';
 
 import { formatINR } from '@/lib/money';

@@ -87,6 +87,26 @@ class ProjectIn(BaseModel):
     target_end_date: date | None = None
 
 
+class ProjectDetailsIn(BaseModel):
+    name: str = Field(min_length=1, max_length=160)
+    site_address: str = ""
+    google_maps_url: str | None = None
+    plot_size: str | None = None
+    floors: str | None = None
+    status: ProjectStatus = ProjectStatus.quote
+    contract_value_paise: int = Field(default=0, ge=0)
+    start_date: date | None = None
+    target_end_date: date | None = None
+
+
+class ProjectWithCustomerIn(BaseModel):
+    """One form: a new customer + their project, or a new project for an existing customer."""
+
+    customer: CustomerIn | None = None
+    customer_id: uuid.UUID | None = None
+    project: ProjectDetailsIn
+
+
 class ProjectUpdate(BaseModel):
     name: str | None = Field(default=None, min_length=1, max_length=160)
     site_address: str | None = None
@@ -114,6 +134,8 @@ class ProjectOut(ORM):
     contract_value_paise: int
     start_date: date | None
     target_end_date: date | None
+    milestones_total: int = 0
+    milestones_done: int = 0  # work finished (done, payment due or paid)
 
 
 class ProjectSiteOut(BaseModel):

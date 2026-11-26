@@ -118,3 +118,11 @@ def test_proof_upload_and_signed_url(client, owner):
 
     bad = client.post("/files", data={"project_id": p["id"]}, files={"file": ("x.exe", b"MZ", "application/x-msdownload")}, headers=cust)
     assert bad.status_code == 415
+
+
+def test_project_reports_stage_progress(client, owner):
+    p, cust = setup_project(client, owner)
+    ms = client.get(f"/projects/{p['id']}/milestones", headers=owner).json()
+    client.post(f"/milestones/{ms[0]['id']}/status", json={"status": "done"}, headers=owner)
+    got = client.get(f"/projects/{p['id']}", headers=owner).json()
+    assert (got["milestones_total"], got["milestones_done"]) == (2, 1)
