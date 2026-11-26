@@ -13,6 +13,7 @@ from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
 from sqlalchemy import select
 
+from app.auth.phone import InvalidPhone
 from app.cli import create_owner
 from app.config import settings
 from app.db import SessionLocal
@@ -41,6 +42,12 @@ def bootstrap(body: BootstrapIn) -> dict:
     with SessionLocal() as db:
         has_owner = db.scalar(select(User).where(User.role == Role.owner)) is not None
     if not has_owner and body.owner_phone and body.owner_name:
-        create_owner(body.owner_phone, body.owner_name)
+        try:
+            create_owner(body.owner_phone, body.owner_name)
+        except InvalidPhone:
+            raise HTTPException(
+                status.HTTP_422_UNPROCESSABLE_ENTITY,
+                "migrations done, but owner_phone is not a valid number; use +91 and the 10-digit mobile",
+            ) from None
         has_owner = True
     return {"migrated": True, "owner_exists": has_owner}

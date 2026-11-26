@@ -128,3 +128,21 @@ def test_database_url_accepts_plain_postgres_scheme():
 
     s = Settings(database_url="postgres://u:p@host.neon.tech/db?sslmode=require")
     assert s.database_url == "postgresql+psycopg://u:p@host.neon.tech/db?sslmode=require"
+
+
+def test_project_with_new_customer_then_second_project(client, owner):
+    body = {
+        "customer": {"name": "Anitha", "phone": "9876500005", "address": "Velachery"},
+        "project": {"name": "Anitha house", "site_address": "4 Lake Rd", "contract_value_paise": 30_00_000_00, "start_date": "2026-12-05"},
+    }
+    r = client.post("/projects/with-customer", json=body, headers=owner)
+    assert r.status_code == 201 and r.json()["customer_name"] == "Anitha"
+    cid = r.json()["customer_id"]
+    r2 = client.post("/projects/with-customer", json={"customer_id": cid, "project": {"name": "Anitha shop"}}, headers=owner)
+    assert r2.status_code == 201
+    assert client.get(f"/customers/{cid}", headers=owner).json()["project_count"] == 2
+    # bad phone: nothing is created
+    bad = client.post("/projects/with-customer", json={"customer": {"name": "X", "phone": "123"}, "project": {"name": "X"}}, headers=owner)
+    assert bad.status_code == 422
+    assert len(client.get("/customers", headers=owner).json()) == 1
+    assert client.post("/projects/with-customer", json={"project": {"name": "Y"}}, headers=owner).status_code == 422

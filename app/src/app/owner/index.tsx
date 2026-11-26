@@ -5,36 +5,40 @@ import { useTranslation } from 'react-i18next';
 
 import { BooksCard } from '@/features/books/BooksCard';
 import { useApi } from '@/lib/useApi';
-import type { Customer } from '@/lib/types';
-import { BigButton, Card, ErrorText, Field, IconLabel, Loading, Muted, Row, Screen } from '@/ui/components';
+import type { Project } from '@/lib/types';
+import { BigButton, Card, ErrorText, Field, IconLabel, Loading, Muted, Row, Screen, StatusChip, Title } from '@/ui/components';
+import { projectTone } from '@/ui/status';
 import { font } from '@/ui/theme';
 
+// Owner home: money at a glance, then every project.
 export default function OwnerHome() {
   const { t } = useTranslation();
   const [q, setQ] = useState('');
-  const { data, error, loading } = useApi<Customer[]>(`/customers${q ? `?q=${encodeURIComponent(q)}` : ''}`);
+  const { data, error, loading } = useApi<Project[]>('/projects');
+  const needle = q.trim().toLowerCase();
+  const projects = (data ?? []).filter(
+    (p) => !needle || p.name.toLowerCase().includes(needle) || p.customer_name.toLowerCase().includes(needle),
+  );
 
   return (
     <Screen>
       <BooksCard />
+      <BigButton label={t('owner.newProject')} icon="add-circle" onPress={() => router.push('/owner/projects/new')} />
       <Row>
-        <BigButton label={t('owner.newCustomer')} icon="person-add" onPress={() => router.push('/owner/customers/new')} />
-        <BigButton
-          label={t('owner.supervisors')}
-          icon="people"
-          variant="secondary"
-          onPress={() => router.push('/owner/supervisors')}
-        />
+        <BigButton label={t('owner.customers')} icon="person" variant="secondary" onPress={() => router.push('/owner/customers')} />
+        <BigButton label={t('owner.supervisors')} icon="people" variant="secondary" onPress={() => router.push('/owner/supervisors')} />
       </Row>
-      <Field label={t('owner.searchCustomers')} value={q} onChangeText={setQ} />
+      <Title>{t('owner.projects')}</Title>
+      <Field label={t('owner.searchProjects')} value={q} onChangeText={setQ} />
       <ErrorText>{error}</ErrorText>
       {loading && !data && <Loading />}
-      {data?.length === 0 && <Muted>{t('owner.noCustomers')}</Muted>}
-      {data?.map((c) => (
-        <Card key={c.id} onPress={() => router.push(`/owner/customers/${c.id}`)}>
-          <Text style={{ fontSize: font.body, fontWeight: '700' }}>{c.name}</Text>
-          <IconLabel icon="call">{c.phone}</IconLabel>
-          <IconLabel icon="home">{`${t('owner.projects')}: ${c.project_count}`}</IconLabel>
+      {data?.length === 0 && <Muted>{t('owner.noProjects')}</Muted>}
+      {projects.map((p) => (
+        <Card key={p.id} onPress={() => router.push(`/owner/projects/${p.id}`)}>
+          <Text style={{ fontSize: font.body, fontWeight: '700' }}>{p.name}</Text>
+          <StatusChip label={t(`status.${p.status}`)} tone={projectTone[p.status]} />
+          <IconLabel icon="person">{p.customer_name}</IconLabel>
+          {!!p.site_address && <IconLabel icon="location">{p.site_address}</IconLabel>}
         </Card>
       ))}
     </Screen>

@@ -4,18 +4,19 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 
 import { api } from '@/lib/api';
-import { isIsoDate, showDate } from '@/lib/dates';
+import { showDate } from '@/lib/dates';
 import { formatINR, rupeesToPaise } from '@/lib/money';
 import { useApi } from '@/lib/useApi';
 import type { Milestone, MilestoneStatus, Project } from '@/lib/types';
 import { BigButton, Card, ErrorText, Field, Muted, Row, StatusChip, Title } from '@/ui/components';
 import { milestoneTone } from '@/ui/status';
 import { colors, font, space } from '@/ui/theme';
+import { DateField } from '@/ui/DateField';
 
 function MilestoneItem({ m, onChanged, onError }: { m: Milestone; onChanged: () => void; onError: (e: string) => void }) {
   const { t } = useTranslation();
   const [asking, setAsking] = useState(false);
-  const [due, setDue] = useState('');
+  const [due, setDue] = useState<string | null | ''>('');
 
   async function move(status: MilestoneStatus, due_date?: string) {
     try {
@@ -63,12 +64,12 @@ function MilestoneItem({ m, onChanged, onError }: { m: Milestone; onChanged: () 
       )}
       {asking && (
         <>
-          <Field label={t('payments.dueDate')} value={due} onChangeText={setDue} />
+          <DateField label={t('payments.dueDate')} onChange={setDue} />
           <BigButton
             label={t('payments.markDue')}
             icon="send"
-            onPress={() => move('payment_due', due)}
-            disabled={due !== '' && !isIsoDate(due)}
+            onPress={() => move('payment_due', due || undefined)}
+            disabled={due === null}
           />
         </>
       )}

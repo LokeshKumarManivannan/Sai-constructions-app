@@ -29,7 +29,13 @@ export async function api<T>(path: string, options: { method?: string; body?: un
     let detail: unknown;
     try {
       detail = (await res.json()).detail;
-      message = typeof detail === 'string' ? detail : JSON.stringify(detail);
+      if (typeof detail === 'string') message = detail;
+      else if (Array.isArray(detail))
+        // FastAPI validation errors: name the field(s) instead of dumping JSON
+        message = detail
+          .map((d: { loc?: unknown[]; msg?: string }) => `${String(d.loc?.at(-1) ?? '').replace(/_/g, ' ')}: ${d.msg ?? ''}`)
+          .join('\n');
+      else message = JSON.stringify(detail);
     } catch {}
     throw new ApiError(res.status, message, detail);
   }

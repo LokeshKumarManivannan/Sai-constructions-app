@@ -3,12 +3,13 @@ import { Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import { api, ApiError } from '@/lib/api';
-import { isIsoDate, today } from '@/lib/dates';
+import { today } from '@/lib/dates';
 import { formatINR, rupeesToPaise } from '@/lib/money';
 import { useApi } from '@/lib/useApi';
 import { PAYMENT_MODES, type Milestone, type PaymentMode, type Role } from '@/lib/types';
 import { BigButton, Card, ChipPicker, ErrorText, Field, Muted, Title } from '@/ui/components';
 import { colors, font, space } from '@/ui/theme';
+import { DateField } from '@/ui/DateField';
 import { PhotoPicker } from '@/features/files/PhotoPicker';
 
 interface CashLimit {
@@ -34,7 +35,7 @@ export function PaymentForm({
   const [amount, setAmount] = useState('');
   const [mode, setMode] = useState<PaymentMode | null>(role === 'customer' ? 'upi' : null);
   const [reference, setReference] = useState('');
-  const [paidOn, setPaidOn] = useState(today());
+  const [paidOn, setPaidOn] = useState<string | null>(today());
   const [milestoneId, setMilestoneId] = useState<string | null>(null);
   const [note, setNote] = useState('');
   const [proof, setProof] = useState<string | null>(null);
@@ -45,7 +46,7 @@ export function PaymentForm({
   async function save(acknowledge = false) {
     const paise = rupeesToPaise(amount);
     if (!paise) return setError(t('owner.invalidAmount'));
-    if (!isIsoDate(paidOn)) return setError(t('payments.paidOn'));
+    if (!paidOn) return setError(t('common.badDate'));
     setBusy(true);
     setError(null);
     try {
@@ -82,7 +83,7 @@ export function PaymentForm({
       <Muted>{t('payments.mode')}</Muted>
       <ChipPicker options={modes} value={mode} onChange={(m) => { setMode(m); setCashLimit(null); }} labelOf={(m) => t(`mode.${m}`)} />
       {mode !== 'cash' && <Field label={t('payments.reference')} value={reference} onChangeText={setReference} autoCapitalize="characters" />}
-      <Field label={t('payments.paidOn')} value={paidOn} onChangeText={setPaidOn} />
+      <DateField label={t('payments.datePaid')} initial={today()} onChange={(v) => setPaidOn(v || null)} />
       {ms.length > 0 && (
         <>
           <Muted>{t('payments.milestone')}</Muted>

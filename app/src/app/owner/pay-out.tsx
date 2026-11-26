@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import { PhotoPicker } from '@/features/files/PhotoPicker';
 import { api } from '@/lib/api';
-import { isIsoDate, today } from '@/lib/dates';
+import { today } from '@/lib/dates';
 import { rupeesToPaise } from '@/lib/money';
 import { useApi } from '@/lib/useApi';
 import {
@@ -20,6 +20,7 @@ import {
   type Trade,
 } from '@/lib/types';
 import { BigButton, Card, ChipPicker, ErrorText, Field, Muted, Screen, Title } from '@/ui/components';
+import { DateField } from '@/ui/DateField';
 
 export default function PayOut() {
   const { t } = useTranslation();
@@ -31,7 +32,7 @@ export default function PayOut() {
   const [amount, setAmount] = useState('');
   const [mode, setMode] = useState<OutMode | null>(null);
   const [txn, setTxn] = useState('');
-  const [paidOn, setPaidOn] = useState(today());
+  const [paidOn, setPaidOn] = useState<string | null>(today());
   const [projectId, setProjectId] = useState<string>('none');
   const [category, setCategory] = useState<ExpenseCategory | null>(null);
   const [trade, setTrade] = useState<Trade | null>(null);
@@ -50,7 +51,7 @@ export default function PayOut() {
   async function save() {
     const paise = rupeesToPaise(amount);
     if (!paise) return setError(t('owner.invalidAmount'));
-    if (!isIsoDate(paidOn)) return setError(t('books.date'));
+    if (!paidOn) return setError(t('common.badDate'));
     setBusy(true);
     setError(null);
     try {
@@ -115,7 +116,7 @@ export default function PayOut() {
         <Muted>{t('books.mode')}</Muted>
         <ChipPicker options={OUT_MODES} value={mode} onChange={setMode} labelOf={(m) => t(`omode.${m}`)} />
         {mode !== 'cash' && <Field label={t('books.txnId')} value={txn} onChangeText={setTxn} autoCapitalize="characters" />}
-        <Field label={t('books.date')} value={paidOn} onChangeText={setPaidOn} />
+        <DateField label={t('books.date')} initial={today()} onChange={(v) => setPaidOn(v || null)} />
         <Muted>{t('books.site')}</Muted>
         <ChipPicker
           options={['none', ...ps.map((p) => p.id)]}

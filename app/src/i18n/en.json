@@ -15,7 +15,8 @@
     "remove": "Remove",
     "copy": "Copy",
     "copied": "Copied",
-    "comingSoon": "Coming soon"
+    "comingSoon": "Coming soon",
+    "badDate": "Type the date as DD/MM/YYYY, e.g. 05/12/2026"
   },
   "login": {
     "title": "Log in",
@@ -74,8 +75,8 @@
     "plotSize": "Plot size",
     "floors": "Floors",
     "contractValue": "Contract value (₹)",
-    "startDate": "Start date (YYYY-MM-DD)",
-    "targetEndDate": "Target end date (YYYY-MM-DD)",
+    "startDate": "Start date (DD/MM/YYYY)",
+    "targetEndDate": "Target end date (DD/MM/YYYY)",
     "status": "Status",
     "milestones": "Payment milestones",
     "milestoneName": "Milestone name",
@@ -92,7 +93,12 @@
     "invites": "Invites",
     "invalidAmount": "Enter a valid amount",
     "milestonesMismatch": "Milestones do not add up to the contract value ({{value}})",
-    "overview": "Overview"
+    "overview": "Overview",
+    "customer": "Customer",
+    "existingCustomer": "Existing customer",
+    "projectDetails": "Project details",
+    "createProject": "Create project",
+    "searchProjects": "Search project or customer"
   },
   "supervisor": {
     "mySites": "My sites",
@@ -131,7 +137,7 @@
     "amount": "Amount (₹)",
     "mode": "How was it paid?",
     "reference": "Transaction / UTR / cheque number",
-    "paidOn": "Date paid (YYYY-MM-DD)",
+    "paidOn": "Date paid (DD/MM/YYYY)",
     "milestone": "For which stage? (optional)",
     "note": "Note (optional)",
     "proof": "Photo of payment (optional)",
@@ -159,7 +165,7 @@
     "saved": "Saved. Waiting for the other side to confirm.",
     "markDone": "Work done",
     "markDue": "Ask for payment",
-    "dueDate": "Payment due date (YYYY-MM-DD, optional)",
+    "dueDate": "Payment due date (DD/MM/YYYY, optional)",
     "undo": "Undo",
     "datePaid": "Date paid"
   },
@@ -273,7 +279,7 @@
     "spentHere": "Spent on this site",
     "confirmed": "Received by them",
     "noEntries": "No entries yet",
-    "date": "Date (YYYY-MM-DD)"
+    "date": "Date (DD/MM/YYYY)"
   },
   "ptype": {
     "labour": "Labour",

@@ -14,7 +14,7 @@ from app.services import audit
 router = APIRouter(prefix="/customers", tags=["customers"])
 
 
-def _norm(raw: str | None) -> str | None:
+def phone_or_none(raw: str | None) -> str | None:
     if raw is None or raw.strip() == "":
         return None
     try:
@@ -40,8 +40,8 @@ def list_customers(q: str | None = None, db: Session = Depends(get_db), _: User 
 @router.post("", response_model=CustomerOut, status_code=201)
 def create_customer(body: CustomerIn, db: Session = Depends(get_db), user: User = Depends(require_owner)):
     data = body.model_dump()
-    data["phone"] = _norm(body.phone)
-    data["alt_phone"] = _norm(body.alt_phone)
+    data["phone"] = phone_or_none(body.phone)
+    data["alt_phone"] = phone_or_none(body.alt_phone)
     if data["phone"] is None:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "phone is required")
     c = Customer(**data, created_by=user.id)
@@ -70,11 +70,11 @@ def update_customer(
     before = audit.snapshot(c)
     data = body.model_dump(exclude_unset=True)
     if "phone" in data:
-        data["phone"] = _norm(data["phone"])
+        data["phone"] = phone_or_none(data["phone"])
         if data["phone"] is None:
             raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "phone is required")
     if "alt_phone" in data:
-        data["alt_phone"] = _norm(data["alt_phone"])
+        data["alt_phone"] = phone_or_none(data["alt_phone"])
     if "name" in data and data["name"] is None:
         del data["name"]
     for field, value in data.items():

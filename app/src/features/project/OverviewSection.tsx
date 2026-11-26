@@ -1,4 +1,5 @@
 import { Text } from 'react-native';
+import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
 import { api } from '@/lib/api';
@@ -6,7 +7,7 @@ import { formatINR } from '@/lib/money';
 import { openUrl } from '@/lib/share';
 import { PROJECT_STATUSES, type Project, type ProjectStatus } from '@/lib/types';
 import { BigButton, Card, ChipPicker, IconLabel, Muted, Title } from '@/ui/components';
-import { font } from '@/ui/theme';
+import { colors, font } from '@/ui/theme';
 
 export function OverviewSection({ project: p, onChanged }: { project: Project; onChanged: () => void }) {
   const { t } = useTranslation();
@@ -19,7 +20,9 @@ export function OverviewSection({ project: p, onChanged }: { project: Project; o
   return (
     <Card>
       <Title>{p.name}</Title>
-      <Muted>{p.customer_name}</Muted>
+      <Text style={{ fontSize: font.body, color: colors.brand, fontWeight: '600' }} onPress={() => router.push(`/owner/customers/${p.customer_id}`)}>
+        {p.customer_name}
+      </Text>
       <Text style={{ fontSize: font.big, fontWeight: '800' }}>{formatINR(p.contract_value_paise)}</Text>
       <Muted>{t('owner.contractValue')}</Muted>
       <IconLabel icon="location">{p.site_address || '—'}</IconLabel>
