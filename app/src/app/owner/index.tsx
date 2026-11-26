@@ -1,14 +1,12 @@
 import { useState } from 'react';
-import { Text } from 'react-native';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
 import { BooksCard } from '@/features/books/BooksCard';
+import { ProjectCard } from '@/features/project/ProjectCard';
 import { useApi } from '@/lib/useApi';
 import type { Project } from '@/lib/types';
-import { BigButton, Card, ErrorText, Field, IconLabel, Loading, Muted, Row, Screen, StatusChip, Title } from '@/ui/components';
-import { projectTone } from '@/ui/status';
-import { font } from '@/ui/theme';
+import { BigButton, Empty, ErrorText, Field, Loading, Row, Screen, SectionTitle } from '@/ui/components';
 
 // Owner home: money at a glance, then every project.
 export default function OwnerHome() {
@@ -23,24 +21,19 @@ export default function OwnerHome() {
   return (
     <Screen>
       <BooksCard />
+      <SectionTitle icon="business">{t('owner.projects')}</SectionTitle>
       <BigButton label={t('owner.newProject')} icon="add-circle" onPress={() => router.push('/owner/projects/new')} />
+      {(data?.length ?? 0) > 3 && <Field label={t('owner.searchProjects')} value={q} onChangeText={setQ} />}
+      <ErrorText>{error}</ErrorText>
+      {loading && !data && <Loading />}
+      {data?.length === 0 && <Empty icon="construct">{t('owner.noProjectsYet')}</Empty>}
+      {projects.map((p) => (
+        <ProjectCard key={p.id} p={p} />
+      ))}
       <Row>
         <BigButton label={t('owner.customers')} icon="person" variant="secondary" onPress={() => router.push('/owner/customers')} />
         <BigButton label={t('owner.supervisors')} icon="people" variant="secondary" onPress={() => router.push('/owner/supervisors')} />
       </Row>
-      <Title>{t('owner.projects')}</Title>
-      <Field label={t('owner.searchProjects')} value={q} onChangeText={setQ} />
-      <ErrorText>{error}</ErrorText>
-      {loading && !data && <Loading />}
-      {data?.length === 0 && <Muted>{t('owner.noProjects')}</Muted>}
-      {projects.map((p) => (
-        <Card key={p.id} onPress={() => router.push(`/owner/projects/${p.id}`)}>
-          <Text style={{ fontSize: font.body, fontWeight: '700' }}>{p.name}</Text>
-          <StatusChip label={t(`status.${p.status}`)} tone={projectTone[p.status]} />
-          <IconLabel icon="person">{p.customer_name}</IconLabel>
-          {!!p.site_address && <IconLabel icon="location">{p.site_address}</IconLabel>}
-        </Card>
-      ))}
     </Screen>
   );
 }

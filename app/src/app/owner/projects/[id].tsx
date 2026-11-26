@@ -42,7 +42,7 @@ export default function OwnerProject() {
   return (
     <Screen>
       <Stack.Screen options={{ title: project.name }} />
-      <ChipPicker options={[...TABS]} value={tab} onChange={setTab} labelOf={(k) => label[k]} />
+      <ChipPicker options={[...TABS]} value={tab} onChange={setTab} labelOf={(k) => label[k]} scroll />
       {tab === 'overview' && (
         <>
           <OverviewSection project={project} onChanged={reload} />

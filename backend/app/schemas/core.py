@@ -134,6 +134,8 @@ class ProjectOut(ORM):
     contract_value_paise: int
     start_date: date | None
     target_end_date: date | None
+    milestones_total: int = 0
+    milestones_done: int = 0  # work finished (done, payment due or paid)
 
 
 class ProjectSiteOut(BaseModel):

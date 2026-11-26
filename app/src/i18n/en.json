@@ -27,7 +27,9 @@
     "verify": "Log in",
     "changeNumber": "Change number",
     "devCode": "Test code: {{code}}",
-    "notRegistered": "This number is not registered with Sai Constructions. Please call us."
+    "notRegistered": "This number is not registered with Sai Constructions. Please call us.",
+    "headline": "Your home, floor by floor.",
+    "sub": "Payments, extra work and site photos for your house, in one place."
   },
   "invite": {
     "title": "You are invited",
@@ -98,7 +100,12 @@
     "existingCustomer": "Existing customer",
     "projectDetails": "Project details",
     "createProject": "Create project",
-    "searchProjects": "Search project or customer"
+    "searchProjects": "Search project or customer",
+    "morning": "Good morning",
+    "afternoon": "Good afternoon",
+    "evening": "Good evening",
+    "stagesDone": "{{done}} of {{total}} stages done",
+    "noProjectsYet": "No projects yet. Add your first one with New project."
   },
   "supervisor": {
     "mySites": "My sites",

@@ -40,6 +40,8 @@ export interface Project {
   contract_value_paise: number;
   start_date: string | null;
   target_end_date: string | null;
+  milestones_total: number;
+  milestones_done: number;
 }
 
 export interface ProjectSite {

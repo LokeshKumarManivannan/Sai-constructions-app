@@ -1,12 +1,12 @@
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.auth.deps import current_user, require_owner
 from app.db import get_db
-from app.models import Customer, Project, Role, User
+from app.models import Customer, Milestone, MilestoneStatus, Project, Role, User
 from app.routers.customers import phone_or_none
 from app.schemas import ProjectIn, ProjectOut, ProjectSiteOut, ProjectUpdate, ProjectWithCustomerIn
 from app.services import audit
@@ -26,7 +26,15 @@ def _out(db: Session, user: User, p: Project) -> ProjectOut | ProjectSiteOut:
             my_trades=supervisor_trades(db, user, p.id),
         )
     customer = db.get(Customer, p.customer_id)
-    return ProjectOut.model_validate(p).model_copy(update={"customer_name": customer.name if customer else ""})
+    total, done = db.execute(
+        select(
+            func.count(Milestone.id),
+            func.count(Milestone.id).filter(Milestone.status != MilestoneStatus.pending),
+        ).where(Milestone.project_id == p.id)
+    ).one()
+    return ProjectOut.model_validate(p).model_copy(
+        update={"customer_name": customer.name if customer else "", "milestones_total": total, "milestones_done": done}
+    )
 
 
 @router.get("", response_model=list[ProjectOut] | list[ProjectSiteOut])

@@ -1,5 +1,5 @@
+import { Text } from '@/ui/Text';
 import { useState } from 'react';
-import { Text } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import { api } from '@/lib/api';

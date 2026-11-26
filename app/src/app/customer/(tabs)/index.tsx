@@ -1,4 +1,5 @@
-import { Text, View } from 'react-native';
+import { Text } from '@/ui/Text';
+import { View } from 'react-native';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
@@ -42,7 +43,7 @@ export default function CustomerMoney() {
           <Muted>{t('customer.planAfterAgreement')}</Muted>
         </Card>
       )}
-      {summary.data && <SummaryCard s={summary.data} />}
+      {summary.data && <SummaryCard s={summary.data} project={project} />}
       {signed && (
         <BigButton
           label={t('payments.logCustomer')}

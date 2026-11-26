@@ -42,7 +42,8 @@
         {
           "locationWhenInUsePermission": "Sai Constructions records where site progress photos were taken."
         }
-      ]
+      ],
+      "expo-font"
     ],
     "scheme": "saiconstructions",
     "experiments": {

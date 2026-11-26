@@ -2,21 +2,13 @@ import { Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
 import { RoleGate } from '@/auth/RoleGate';
-import { HeaderActions } from '@/ui/HeaderActions';
-import { colors } from '@/ui/theme';
+import { headerOptions } from '@/ui/header';
 
 export default function OwnerLayout() {
   const { t } = useTranslation();
   return (
     <RoleGate role="owner">
-      <Stack
-        screenOptions={{
-          headerStyle: { backgroundColor: colors.card },
-          headerTitleStyle: { fontWeight: '700' },
-          headerRight: () => <HeaderActions />,
-          contentStyle: { backgroundColor: colors.bg },
-        }}
-      >
+      <Stack screenOptions={headerOptions}>
         <Stack.Screen name="index" options={{ title: t('company') }} />
         <Stack.Screen name="customers/index" options={{ title: t('owner.customers') }} />
         <Stack.Screen name="customers/[id]" options={{ title: t('owner.customers') }} />

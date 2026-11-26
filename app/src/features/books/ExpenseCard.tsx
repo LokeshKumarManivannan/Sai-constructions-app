@@ -1,5 +1,6 @@
+import { Text } from '@/ui/Text';
 import { useState } from 'react';
-import { Image, Pressable, Text } from 'react-native';
+import { Image, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import { api } from '@/lib/api';

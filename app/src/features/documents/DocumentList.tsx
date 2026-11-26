@@ -1,4 +1,5 @@
-import { Pressable, Text, View } from 'react-native';
+import { Text } from '@/ui/Text';
+import { Pressable, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 

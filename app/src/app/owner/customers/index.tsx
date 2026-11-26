@@ -1,5 +1,5 @@
+import { Text } from '@/ui/Text';
 import { useState } from 'react';
-import { Text } from 'react-native';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
