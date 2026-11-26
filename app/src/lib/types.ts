@@ -86,3 +86,56 @@ export interface PublicInvite {
   phone_masked: string;
   usable: boolean;
 }
+
+// ---------- payments (phase 2) ----------
+export type PaymentMode = 'upi' | 'bank_transfer' | 'cheque' | 'cash';
+export type PaymentStatus = 'unconfirmed' | 'confirmed' | 'disputed' | 'void';
+export const PAYMENT_MODES: PaymentMode[] = ['upi', 'bank_transfer', 'cheque', 'cash'];
+
+export interface Payment {
+  id: string;
+  project_id: string;
+  milestone_id: string | null;
+  milestone_name: string | null;
+  amount_paise: number;
+  mode: PaymentMode;
+  reference: string | null;
+  paid_on: string;
+  note: string | null;
+  proof_url: string | null;
+  logged_by_role: Role;
+  logged_by_name: string;
+  status: PaymentStatus;
+  confirmed_at: string | null;
+  dispute_reason: string | null;
+  receipt_no: number | null;
+  corrects_id: string | null;
+  created_at: string;
+  can_confirm: boolean;
+}
+
+export interface Summary {
+  contract_value_paise: number;
+  approved_extras_paise: number;
+  total_due_paise: number;
+  paid_paise: number;
+  outstanding_paise: number;
+  awaiting_confirmation: number;
+  cash_received_paise: number;
+  cash_limit_paise: number;
+  next_due: { milestone_id: string; name: string; amount_paise: number; due_date: string | null } | null;
+}
+
+export interface Receipt {
+  company: string;
+  receipt_no: number;
+  project_name: string;
+  customer_name: string;
+  site_address: string;
+  amount_paise: number;
+  mode: PaymentMode;
+  reference: string | null;
+  paid_on: string;
+  milestone_name: string | null;
+  confirmed_at: string;
+}

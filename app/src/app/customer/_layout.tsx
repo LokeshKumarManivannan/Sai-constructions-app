@@ -1,37 +1,25 @@
-import type { ComponentProps } from 'react';
-import type { ColorValue } from 'react-native';
-import { Tabs } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
 import { RoleGate } from '@/auth/RoleGate';
 import { HeaderActions } from '@/ui/HeaderActions';
 import { colors } from '@/ui/theme';
 
-// Four big tabs, icon + word (UX rule 2).
 export default function CustomerLayout() {
   const { t } = useTranslation();
-  const icon =
-    (name: ComponentProps<typeof Ionicons>['name']) =>
-    ({ color }: { color: ColorValue }) => <Ionicons name={name} size={30} color={color as string} />;
-
   return (
     <RoleGate role="customer">
-      <Tabs
+      <Stack
         screenOptions={{
-          headerTitle: t('company'),
+          headerStyle: { backgroundColor: colors.card },
+          headerTitleStyle: { fontWeight: '700' },
           headerRight: () => <HeaderActions />,
-          tabBarActiveTintColor: colors.brand,
-          tabBarInactiveTintColor: colors.muted,
-          tabBarLabelStyle: { fontSize: 14, fontWeight: '700' },
-          tabBarStyle: { height: 72, paddingTop: 6, paddingBottom: 8 },
+          contentStyle: { backgroundColor: colors.bg },
         }}
       >
-        <Tabs.Screen name="index" options={{ title: t('customer.money'), tabBarIcon: icon('wallet') }} />
-        <Tabs.Screen name="progress" options={{ title: t('customer.progress'), tabBarIcon: icon('images') }} />
-        <Tabs.Screen name="documents" options={{ title: t('customer.documents'), tabBarIcon: icon('document-text') }} />
-        <Tabs.Screen name="help" options={{ title: t('customer.help'), tabBarIcon: icon('call') }} />
-      </Tabs>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="pay" options={{ title: t('payments.logCustomer') }} />
+      </Stack>
     </RoleGate>
   );
 }

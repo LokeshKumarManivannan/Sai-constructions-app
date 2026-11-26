@@ -7,8 +7,8 @@ from sqlalchemy.orm import Session
 from app.auth.deps import current_user, require_owner
 from app.db import get_db
 from app.models import Milestone, MilestoneStatus, ProjectStatus, Role, User
-from app.schemas import MilestoneIn, MilestoneOut, MilestoneUpdate
-from app.services import audit
+from app.schemas import MilestoneIn, MilestoneOut, MilestoneStatusIn, MilestoneUpdate
+from app.services import audit, money
 from app.services.access import get_project_for
 
 router = APIRouter(tags=["milestones"])
@@ -55,6 +55,30 @@ def update_milestone(
         if value is None and field in ("name", "amount_due_paise", "seq"):
             continue
         setattr(m, field, value)
+    audit.record(db, user, "update", "milestone", m.id, before=before, after=audit.snapshot(m))
+    db.commit()
+    return m
+
+
+@router.post("/milestones/{milestone_id}/status", response_model=MilestoneOut)
+def set_milestone_status(
+    milestone_id: uuid.UUID, body: MilestoneStatusIn, db: Session = Depends(get_db), user: User = Depends(require_owner)
+):
+    """Owner moves a milestone forward: pending → done (work finished) → payment_due. 'paid' is automatic."""
+    m = _milestone_or_404(db, milestone_id)
+    allowed = {
+        MilestoneStatus.pending: {MilestoneStatus.done, MilestoneStatus.payment_due},
+        MilestoneStatus.done: {MilestoneStatus.payment_due, MilestoneStatus.pending},
+        MilestoneStatus.payment_due: {MilestoneStatus.done},
+    }
+    if body.status not in allowed.get(m.status, set()):
+        raise HTTPException(status.HTTP_409_CONFLICT, f"cannot move from {m.status.value} to {body.status.value}")
+    before = audit.snapshot(m)
+    m.status = body.status
+    if body.due_date is not None:
+        m.due_date = body.due_date
+    db.flush()
+    money.refresh_milestones(db, m.project_id)
     audit.record(db, user, "update", "milestone", m.id, before=before, after=audit.snapshot(m))
     db.commit()
     return m

@@ -4,12 +4,78 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 
 import { api } from '@/lib/api';
+import { isIsoDate, showDate } from '@/lib/dates';
 import { formatINR, rupeesToPaise } from '@/lib/money';
 import { useApi } from '@/lib/useApi';
-import type { Milestone, Project } from '@/lib/types';
-import { BigButton, Card, ErrorText, Field, Muted, StatusChip, Title } from '@/ui/components';
+import type { Milestone, MilestoneStatus, Project } from '@/lib/types';
+import { BigButton, Card, ErrorText, Field, Muted, Row, StatusChip, Title } from '@/ui/components';
 import { milestoneTone } from '@/ui/status';
 import { colors, font, space } from '@/ui/theme';
+
+function MilestoneItem({ m, onChanged, onError }: { m: Milestone; onChanged: () => void; onError: (e: string) => void }) {
+  const { t } = useTranslation();
+  const [asking, setAsking] = useState(false);
+  const [due, setDue] = useState('');
+
+  async function move(status: MilestoneStatus, due_date?: string) {
+    try {
+      await api(`/milestones/${m.id}/status`, { method: 'POST', body: { status, due_date: due_date || null } });
+      setAsking(false);
+      onChanged();
+    } catch (e) {
+      onError((e as Error).message);
+    }
+  }
+
+  async function remove() {
+    try {
+      await api(`/milestones/${m.id}`, { method: 'DELETE' });
+      onChanged();
+    } catch (e) {
+      onError((e as Error).message);
+    }
+  }
+
+  return (
+    <View style={{ gap: space.s, paddingVertical: space.s, borderBottomWidth: 1, borderColor: colors.border }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s }}>
+        <Text style={{ width: 28, fontSize: font.body, color: colors.muted }}>{m.seq}.</Text>
+        <View style={{ flex: 1, gap: 2 }}>
+          <Text style={{ fontSize: font.body, fontWeight: '600' }}>{m.name}</Text>
+          <Row>
+            <StatusChip label={t(`status.${m.status}`)} tone={milestoneTone[m.status]} />
+            {m.due_date && <Muted>{showDate(m.due_date)}</Muted>}
+          </Row>
+        </View>
+        <Text style={{ fontSize: font.body, fontWeight: '700' }}>{formatINR(m.amount_due_paise)}</Text>
+        {m.status === 'pending' && (
+          <Pressable accessibilityLabel={t('common.remove')} onPress={remove} hitSlop={10}>
+            <Ionicons name="trash-outline" size={22} color={colors.bad} />
+          </Pressable>
+        )}
+      </View>
+      {m.status === 'pending' && <BigButton label={t('payments.markDone')} icon="hammer" variant="secondary" onPress={() => move('done')} />}
+      {m.status === 'done' && !asking && (
+        <Row>
+          <BigButton label={t('payments.markDue')} icon="cash" onPress={() => setAsking(true)} />
+          <BigButton label={t('payments.undo')} variant="secondary" onPress={() => move('pending')} />
+        </Row>
+      )}
+      {asking && (
+        <>
+          <Field label={t('payments.dueDate')} value={due} onChangeText={setDue} />
+          <BigButton
+            label={t('payments.markDue')}
+            icon="send"
+            onPress={() => move('payment_due', due)}
+            disabled={due !== '' && !isIsoDate(due)}
+          />
+        </>
+      )}
+      {m.status === 'payment_due' && <BigButton label={t('payments.undo')} variant="secondary" onPress={() => move('done')} />}
+    </View>
+  );
+}
 
 export function MilestonesSection({ project }: { project: Project }) {
   const { t } = useTranslation();
@@ -39,35 +105,11 @@ export function MilestonesSection({ project }: { project: Project }) {
     }
   }
 
-  async function remove(m: Milestone) {
-    try {
-      await api(`/milestones/${m.id}`, { method: 'DELETE' });
-      await reload();
-    } catch (e) {
-      setError((e as Error).message);
-    }
-  }
-
   return (
     <Card>
       <Title>{t('owner.milestones')}</Title>
       {data?.map((m) => (
-        <View
-          key={m.id}
-          style={{ flexDirection: 'row', alignItems: 'center', gap: space.s, paddingVertical: space.xs, borderBottomWidth: 1, borderColor: colors.border }}
-        >
-          <Text style={{ width: 28, fontSize: font.body, color: colors.muted }}>{m.seq}.</Text>
-          <View style={{ flex: 1, gap: 2 }}>
-            <Text style={{ fontSize: font.body, fontWeight: '600' }}>{m.name}</Text>
-            <StatusChip label={t(`status.${m.status}`)} tone={milestoneTone[m.status]} />
-          </View>
-          <Text style={{ fontSize: font.body, fontWeight: '700' }}>{formatINR(m.amount_due_paise)}</Text>
-          {m.status === 'pending' && (
-            <Pressable accessibilityLabel={t('common.remove')} onPress={() => remove(m)} hitSlop={10}>
-              <Ionicons name="trash-outline" size={22} color={colors.bad} />
-            </Pressable>
-          )}
-        </View>
+        <MilestoneItem key={m.id} m={m} onChanged={reload} onError={setError} />
       ))}
       <Muted>
         {t('owner.milestonesTotal')}: {formatINR(total)}

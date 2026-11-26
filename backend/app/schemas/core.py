@@ -141,6 +141,11 @@ class MilestoneUpdate(BaseModel):
     seq: int | None = Field(default=None, ge=1)
 
 
+class MilestoneStatusIn(BaseModel):
+    status: MilestoneStatus
+    due_date: date | None = None
+
+
 class MilestoneOut(ORM):
     id: uuid.UUID
     project_id: uuid.UUID
