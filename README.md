@@ -15,11 +15,12 @@ app/       Expo (React Native + TypeScript) (Android, iOS and web from one codeb
 | Phase | Scope | State |
 | --- | --- | --- |
 | 1 | Phone OTP login, roles, English/Tamil, customers, projects, payment milestones, supervisor assignments, customer invites, audit log | Done |
-| 2 | Customer payments (bank/UPI/cash), two-sided confirmation, receipts, ₹2 lakh cash warning | Next |
-| 3 | Change orders (extra work) with customer approval | |
-| 4 | Progress photos by trade | |
-| 5 | Internal books, untagged payments, cash book, petty cash | |
-| 6 | Document vault, handover checklist | |
+| 2 | Customer payments (bank/UPI/cheque/cash), two-sided confirmation, receipts, ₹2 lakh cash warning, milestone billing | Done |
+| 3 | Extra work (change orders) with customer approve/reject | Done |
+| 4 | Progress photos by trade (supervisor upload, customer timeline) | Done |
+| 5 | Internal books: payments out, untagged queue, cash book, petty cash, site profit | Done |
+| 6 | Document vault (versions, visibility), handover checklist and customer sign-off | Done |
+| Later | Push/WhatsApp notifications, real SMS OTP, quote builder, eSign, bank SMS capture, voice assistant, warranty terms, date picker, store release, hosting | |
 
 ## Run locally
 
@@ -36,7 +37,7 @@ python -m app.cli create-owner --phone 98xxxxxxxx --name "Owner Name"
 uvicorn app.main:app --reload --port 8000
 ```
 
-API docs: http://localhost:8000/docs. Tests (need a `sai_test` database): `python -m pytest`.
+API docs: http://localhost:8000/docs. Tests (need a `sai_test` database): `python -m pytest` (27 tests). Uploaded files go to `UPLOAD_DIR` (default `./uploads`).
 
 ### App
 

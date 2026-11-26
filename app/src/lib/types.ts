@@ -241,3 +241,46 @@ export interface MyMoney {
   advance: { given_paise: number; spent_paise: number; holding_paise: number };
   my_spends: Expense[];
 }
+
+// ---------- documents & handover (phase 6) ----------
+export type DocGroup = 'property' | 'approvals' | 'technical' | 'utilities' | 'contract' | 'internal';
+export const DOC_TYPES: Record<DocGroup, string[]> = {
+  property: ['patta', 'chitta', 'ec', 'sale_deed', 'property_tax'],
+  approvals: ['approved_plan', 'building_permit', 'completion_certificate'],
+  technical: ['architectural_drawing', 'structural_drawing', 'soil_test', 'as_built_drawing'],
+  utilities: ['eb_connection', 'water_connection', 'sewage_connection'],
+  contract: ['quote', 'signed_agreement', 'change_order_approval', 'payment_receipt'],
+  internal: ['supplier_bill', 'internal_note'],
+};
+export const DOC_GROUPS = Object.keys(DOC_TYPES) as DocGroup[];
+
+export interface DocumentItem {
+  id: string;
+  project_id: string;
+  group: DocGroup;
+  doc_type: string;
+  title: string;
+  version: number;
+  visibility: 'customer' | 'internal';
+  url: string | null;
+  content_type: string;
+  versions: number;
+  created_at: string;
+}
+
+export interface HandoverItem {
+  id: string;
+  seq: number;
+  item: string;
+  quantity: string | null;
+  note: string | null;
+  photo_url: string | null;
+  checked: boolean;
+}
+
+export interface Handover {
+  items: HandoverItem[];
+  all_checked: boolean;
+  signed_by_name: string | null;
+  signed_at: string | null;
+}

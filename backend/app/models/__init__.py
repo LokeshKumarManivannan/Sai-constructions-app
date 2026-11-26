@@ -1,6 +1,7 @@
 from app.models.audit import AuditLog
 from app.models.books import CashTransfer, CashTransferKind, Expense, ExpenseCategory, ExpenseStatus, OutMode, Payee, PayeeType
 from app.models.change_orders import ChangeOrder, ChangeOrderStatus
+from app.models.documents import DocGroup, Document, HandoverItem, HandoverSignoff, Visibility
 from app.models.files import StoredFile
 from app.models.payments import CustomerPayment, PaymentMode, PaymentStatus
 from app.models.common import Language, MilestoneStatus, ProjectStatus, Role, Trade
@@ -22,6 +23,10 @@ __all__ = [
     "ChangeOrder",
     "ChangeOrderStatus",
     "Customer",
+    "DocGroup",
+    "Document",
+    "HandoverItem",
+    "HandoverSignoff",
     "CustomerPayment",
     "Invite",
     "InviteStatus",
@@ -40,4 +45,5 @@ __all__ = [
     "SupervisorAssignment",
     "Trade",
     "User",
+    "Visibility",
 ]
