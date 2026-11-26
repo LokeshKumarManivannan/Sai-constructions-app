@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import { ChangeOrderList } from '@/features/changeOrders/ChangeOrderList';
 import { PaymentsSection } from '@/features/payments/PaymentsSection';
+import { ProgressTimeline } from '@/features/progress/ProgressTimeline';
 import { InviteSection } from '@/features/project/InviteSection';
 import { MilestonesSection } from '@/features/project/MilestonesSection';
 import { OverviewSection } from '@/features/project/OverviewSection';
@@ -12,7 +13,7 @@ import { useApi } from '@/lib/useApi';
 import type { Project } from '@/lib/types';
 import { BigButton, ChipPicker, ErrorText, Loading, Screen } from '@/ui/components';
 
-const TABS = ['overview', 'money', 'extra', 'milestones', 'team'] as const;
+const TABS = ['overview', 'money', 'extra', 'progress', 'milestones', 'team'] as const;
 type Tab = (typeof TABS)[number];
 
 export default function OwnerProject() {
@@ -27,6 +28,7 @@ export default function OwnerProject() {
     overview: t('owner.overview'),
     money: t('payments.title'),
     extra: t('extra.title'),
+    progress: t('progress.title'),
     milestones: t('owner.milestones'),
     team: t('owner.team'),
   };
@@ -50,6 +52,16 @@ export default function OwnerProject() {
             onPress={() => router.push({ pathname: '/owner/extra', params: { projectId: project.id } })}
           />
           <ChangeOrderList projectId={project.id} viewer="owner" />
+        </>
+      )}
+      {tab === 'progress' && (
+        <>
+          <BigButton
+            label={t('progress.add')}
+            icon="camera"
+            onPress={() => router.push({ pathname: '/owner/update', params: { projectId: project.id } })}
+          />
+          <ProgressTimeline projectId={project.id} />
         </>
       )}
       {tab === 'milestones' && <MilestonesSection project={project} />}

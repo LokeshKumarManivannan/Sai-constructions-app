@@ -18,6 +18,8 @@ export default function SupervisorLayout() {
         }}
       >
         <Stack.Screen name="index" options={{ title: t('supervisor.mySites') }} />
+        <Stack.Screen name="site/[id]" options={{ title: t('progress.title') }} />
+        <Stack.Screen name="update" options={{ title: t('progress.add') }} />
       </Stack>
     </RoleGate>
   );

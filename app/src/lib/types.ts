@@ -160,3 +160,18 @@ export interface ChangeOrder {
   reject_reason: string | null;
   created_at: string;
 }
+
+// ---------- progress (phase 4) ----------
+export interface ProgressUpdate {
+  id: string;
+  project_id: string;
+  trade: Trade;
+  milestone_id: string | null;
+  milestone_name: string | null;
+  note: string;
+  photo_urls: string[];
+  taken_at: string;
+  lat: number | null;
+  lng: number | null;
+  posted_by_name: string;
+}
