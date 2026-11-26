@@ -3,6 +3,7 @@ import { Text } from 'react-native';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
+import { BooksCard } from '@/features/books/BooksCard';
 import { useApi } from '@/lib/useApi';
 import type { Customer } from '@/lib/types';
 import { BigButton, Card, ErrorText, Field, IconLabel, Loading, Muted, Row, Screen } from '@/ui/components';
@@ -15,6 +16,7 @@ export default function OwnerHome() {
 
   return (
     <Screen>
+      <BooksCard />
       <Row>
         <BigButton label={t('owner.newCustomer')} icon="person-add" onPress={() => router.push('/owner/customers/new')} />
         <BigButton
@@ -32,9 +34,7 @@ export default function OwnerHome() {
         <Card key={c.id} onPress={() => router.push(`/owner/customers/${c.id}`)}>
           <Text style={{ fontSize: font.body, fontWeight: '700' }}>{c.name}</Text>
           <IconLabel icon="call">{c.phone}</IconLabel>
-          <IconLabel icon="home">
-            {c.project_count} {t('owner.projects')}
-          </IconLabel>
+          <IconLabel icon="home">{`${t('owner.projects')}: ${c.project_count}`}</IconLabel>
         </Card>
       ))}
     </Screen>

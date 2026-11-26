@@ -3,7 +3,7 @@ import { Platform } from 'react-native';
 import * as Location from 'expo-location';
 import { useTranslation } from 'react-i18next';
 
-import { PhotoPicker } from '@/features/payments/PhotoPicker';
+import { PhotoPicker } from '@/features/files/PhotoPicker';
 import { api } from '@/lib/api';
 import { useApi } from '@/lib/useApi';
 import type { Milestone, Role, Trade } from '@/lib/types';

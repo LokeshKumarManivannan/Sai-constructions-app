@@ -9,7 +9,7 @@ import { useApi } from '@/lib/useApi';
 import { PAYMENT_MODES, type Milestone, type PaymentMode, type Role } from '@/lib/types';
 import { BigButton, Card, ChipPicker, ErrorText, Field, Muted, Title } from '@/ui/components';
 import { colors, font, space } from '@/ui/theme';
-import { PhotoPicker } from './PhotoPicker';
+import { PhotoPicker } from '@/features/files/PhotoPicker';
 
 interface CashLimit {
   code: 'cash_limit';

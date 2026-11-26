@@ -175,3 +175,69 @@ export interface ProgressUpdate {
   lng: number | null;
   posted_by_name: string;
 }
+
+// ---------- internal books (phase 5) ----------
+export type PayeeType = 'labour' | 'supplier' | 'supervisor' | 'other';
+export type ExpenseCategory = 'labour' | 'material' | 'supplier' | 'transport' | 'equipment' | 'other' | 'advance';
+export type OutMode = 'bank' | 'upi' | 'cash';
+export const PAYEE_TYPES: PayeeType[] = ['labour', 'supplier', 'supervisor', 'other'];
+export const EXPENSE_CATEGORIES: ExpenseCategory[] = ['labour', 'material', 'supplier', 'transport', 'equipment', 'other', 'advance'];
+export const OUT_MODES: OutMode[] = ['bank', 'upi', 'cash'];
+
+export interface Payee {
+  id: string;
+  name: string;
+  phone: string | null;
+  type: PayeeType;
+  user_id: string | null;
+  default_project_id: string | null;
+  default_category: ExpenseCategory | null;
+  total_paid_paise: number;
+}
+
+export interface Expense {
+  id: string;
+  project_id: string | null;
+  project_name: string | null;
+  payee_id: string;
+  payee_name: string;
+  payee_type: PayeeType | null;
+  category: ExpenseCategory | null;
+  trade: Trade | null;
+  amount_paise: number;
+  mode: OutMode;
+  bank_txn_id: string | null;
+  reason: string | null;
+  bill_url: string | null;
+  paid_on: string;
+  spent_from_advance_of: string | null;
+  recipient_confirmed_at: string | null;
+  status: 'active' | 'void';
+  corrects_id: string | null;
+  tagged: boolean;
+  created_at: string;
+}
+
+export interface CashEntry {
+  on_date: string;
+  direction: 'in' | 'out';
+  amount_paise: number;
+  label: string;
+  kind: string;
+  ref_id: string;
+  balance_paise: number;
+}
+
+export interface BooksSummary {
+  sites: { project_id: string; project_name: string; received_paise: number; spent_paise: number; net_paise: number }[];
+  received_paise: number;
+  spent_paise: number;
+  cash_in_hand_paise: number;
+  untagged_count: number;
+}
+
+export interface MyMoney {
+  received: Expense[];
+  advance: { given_paise: number; spent_paise: number; holding_paise: number };
+  my_spends: Expense[];
+}
