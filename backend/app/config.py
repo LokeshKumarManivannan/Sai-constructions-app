@@ -20,6 +20,13 @@ class Settings(BaseSettings):
     # Base URL the invite link points to (app landing / web app).
     app_base_url: str = "http://localhost:8081"
 
+    # Uploaded photos and documents. Local disk for now; S3-compatible storage later.
+    upload_dir: str = "./uploads"
+    max_upload_mb: int = 15
+    # Public base URL of this API, used to build signed file links.
+    api_base_url: str = "http://localhost:8000"
+    file_url_ttl_seconds: int = 3600
+
     cors_origins: list[str] = ["http://localhost:8081", "http://localhost:19006"]
 
 

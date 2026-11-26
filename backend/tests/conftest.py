@@ -2,6 +2,7 @@ import os
 
 os.environ.setdefault("DATABASE_URL", "postgresql+psycopg://sai:sai@localhost:5432/sai_test")
 os.environ["DEV_EXPOSE_OTP"] = "true"
+os.environ["UPLOAD_DIR"] = "/tmp/sai-test-uploads"
 
 import pytest  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402

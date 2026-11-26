@@ -28,7 +28,15 @@
       "expo-router",
       "expo-status-bar",
       "expo-secure-store",
-      "expo-localization"
+      "expo-localization",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Sai Constructions uses your photos to attach bills, payment proofs and site progress.",
+          "cameraPermission": "Sai Constructions uses the camera to photograph bills and site progress.",
+          "microphonePermission": false
+        }
+      ]
     ],
     "scheme": "saiconstructions",
     "experiments": {

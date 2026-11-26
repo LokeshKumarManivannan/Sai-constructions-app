@@ -3,6 +3,7 @@ import { Stack, useLocalSearchParams } from 'expo-router';
 import { InviteSection } from '@/features/project/InviteSection';
 import { MilestonesSection } from '@/features/project/MilestonesSection';
 import { OverviewSection } from '@/features/project/OverviewSection';
+import { PaymentsSection } from '@/features/payments/PaymentsSection';
 import { TeamSection } from '@/features/project/TeamSection';
 import { useApi } from '@/lib/useApi';
 import type { Project } from '@/lib/types';
@@ -18,6 +19,7 @@ export default function OwnerProject() {
     <Screen>
       <Stack.Screen options={{ title: project.name }} />
       <OverviewSection project={project} onChanged={reload} />
+      <PaymentsSection projectId={project.id} />
       <MilestonesSection project={project} />
       <TeamSection projectId={project.id} />
       <InviteSection projectId={project.id} />

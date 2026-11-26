@@ -24,6 +24,7 @@ export default function RootLayout() {
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="login" options={{ title: t('company') }} />
         <Stack.Screen name="invite/[token]" options={{ title: t('company') }} />
+        <Stack.Screen name="receipt/[id]" options={{ title: t('payments.receipt') }} />
         <Stack.Screen name="owner" options={{ headerShown: false }} />
         <Stack.Screen name="supervisor" options={{ headerShown: false }} />
         <Stack.Screen name="customer" options={{ headerShown: false }} />
