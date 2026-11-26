@@ -139,3 +139,24 @@ export interface Receipt {
   milestone_name: string | null;
   confirmed_at: string;
 }
+
+// ---------- change orders (phase 3) ----------
+export type ChangeOrderStatus = 'draft' | 'sent' | 'approved' | 'rejected' | 'in_progress' | 'done';
+
+export interface ChangeOrder {
+  id: string;
+  project_id: string;
+  trade: Trade | null;
+  title: string;
+  description: string;
+  amount_paise: number;
+  photo_urls: string[];
+  status: ChangeOrderStatus;
+  version: number;
+  revises_id: string | null;
+  sent_at: string | null;
+  decided_by_name: string | null;
+  decided_at: string | null;
+  reject_reason: string | null;
+  created_at: string;
+}
