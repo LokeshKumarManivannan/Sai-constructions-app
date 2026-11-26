@@ -9,8 +9,6 @@ import hashlib
 import hmac
 import time
 import uuid
-from pathlib import Path
-
 from app.config import settings
 
 ALLOWED_TYPES = {
@@ -22,18 +20,8 @@ ALLOWED_TYPES = {
 }
 
 
-def storage_root() -> Path:
-    root = Path(settings.upload_dir)
-    root.mkdir(parents=True, exist_ok=True)
-    return root
-
-
 def new_storage_key(content_type: str) -> str:
     return f"{uuid.uuid4().hex}{ALLOWED_TYPES[content_type]}"
-
-
-def path_for(key: str) -> Path:
-    return storage_root() / key
 
 
 def _sig(file_id: uuid.UUID, exp: int) -> str:

@@ -117,3 +117,14 @@ def test_audit_log_records_writes(client, owner):
 
 def test_bad_phone_rejected(client, owner):
     assert client.post("/customers", json={"name": "X", "phone": "123"}, headers=owner).status_code == 422
+
+
+def test_bootstrap_disabled_without_token(client):
+    assert client.post("/admin/bootstrap", json={"token": "x"}).status_code == 404
+
+
+def test_database_url_accepts_plain_postgres_scheme():
+    from app.config import Settings
+
+    s = Settings(database_url="postgres://u:p@host.neon.tech/db?sslmode=require")
+    assert s.database_url == "postgresql+psycopg://u:p@host.neon.tech/db?sslmode=require"

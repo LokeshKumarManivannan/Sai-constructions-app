@@ -66,6 +66,8 @@ def run_migrations_online() -> None:
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
+        # Neon's pooled (PgBouncer) URL can't keep prepared statements between transactions.
+        connect_args={"prepare_threshold": None} if settings.db_null_pool else {},
     )
 
     with connectable.connect() as connection:
