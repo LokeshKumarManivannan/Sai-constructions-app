@@ -14,7 +14,7 @@ export function PhotoPicker({
   onUploaded,
   multiple = false,
 }: {
-  projectId: string;
+  projectId: string | null;
   label: string;
   onUploaded: (ids: string[]) => void;
   multiple?: boolean;

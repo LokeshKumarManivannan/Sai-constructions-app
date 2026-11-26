@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
+import { ProjectExpenses } from '@/features/books/ProjectExpenses';
 import { ChangeOrderList } from '@/features/changeOrders/ChangeOrderList';
 import { PaymentsSection } from '@/features/payments/PaymentsSection';
 import { ProgressTimeline } from '@/features/progress/ProgressTimeline';
@@ -13,7 +14,7 @@ import { useApi } from '@/lib/useApi';
 import type { Project } from '@/lib/types';
 import { BigButton, ChipPicker, ErrorText, Loading, Screen } from '@/ui/components';
 
-const TABS = ['overview', 'money', 'extra', 'progress', 'milestones', 'team'] as const;
+const TABS = ['overview', 'money', 'extra', 'progress', 'expenses', 'milestones', 'team'] as const;
 type Tab = (typeof TABS)[number];
 
 export default function OwnerProject() {
@@ -29,6 +30,7 @@ export default function OwnerProject() {
     money: t('payments.title'),
     extra: t('extra.title'),
     progress: t('progress.title'),
+    expenses: t('books.expenses'),
     milestones: t('owner.milestones'),
     team: t('owner.team'),
   };
@@ -64,6 +66,7 @@ export default function OwnerProject() {
           <ProgressTimeline projectId={project.id} />
         </>
       )}
+      {tab === 'expenses' && <ProjectExpenses projectId={project.id} />}
       {tab === 'milestones' && <MilestonesSection project={project} />}
       {tab === 'team' && <TeamSection projectId={project.id} />}
     </Screen>

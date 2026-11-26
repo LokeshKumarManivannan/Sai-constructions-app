@@ -14,6 +14,7 @@ export default function MySites() {
 
   return (
     <Screen>
+      <BigButton label={t('mymoney.title')} icon="wallet" variant="secondary" onPress={() => router.push('/supervisor/money')} />
       <ErrorText>{error}</ErrorText>
       {loading && !data && <Loading />}
       {data?.length === 0 && <Muted>{t('supervisor.noSites')}</Muted>}

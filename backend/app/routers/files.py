@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from app.auth.deps import current_user
 from app.config import settings
 from app.db import get_db
-from app.models import StoredFile, User
+from app.models import Role, StoredFile, User
 from app.services import audit
 from app.services.access import get_project_for
 from app.services.files import ALLOWED_TYPES, check_signature, new_storage_key, path_for, signed_url
@@ -17,13 +17,16 @@ router = APIRouter(tags=["files"])
 
 @router.post("/files", status_code=201)
 async def upload(
-    project_id: uuid.UUID = Form(...),
+    project_id: uuid.UUID | None = Form(None),
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
     user: User = Depends(current_user),
 ) -> dict:
     """Upload a photo or PDF for a project the user can see. Returns its id and a signed URL."""
-    get_project_for(db, user, project_id)
+    if project_id is not None:
+        get_project_for(db, user, project_id)
+    elif user.role != Role.owner:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "project_id is required")
     if file.content_type not in ALLOWED_TYPES:
         raise HTTPException(status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, "only photos (jpg, png, webp, heic) or PDF")
     data = await file.read()
@@ -41,7 +44,7 @@ async def upload(
     )
     db.add(f)
     db.flush()
-    audit.record(db, user, "create", "file", f.id, after={"project_id": str(project_id), "name": f.original_name})
+    audit.record(db, user, "create", "file", f.id, after={"project_id": str(project_id) if project_id else None, "name": f.original_name})
     db.commit()
     return {"id": str(f.id), "url": signed_url(f.id)}
 

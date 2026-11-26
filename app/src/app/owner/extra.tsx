@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
-import { PhotoPicker } from '@/features/payments/PhotoPicker';
+import { PhotoPicker } from '@/features/files/PhotoPicker';
 import { api } from '@/lib/api';
 import { rupeesToPaise } from '@/lib/money';
 import { TRADES, type ChangeOrder, type Trade } from '@/lib/types';

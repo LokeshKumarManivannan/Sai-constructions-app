@@ -39,12 +39,12 @@ export async function api<T>(path: string, options: { method?: string; body?: un
 
 /** Multipart upload of one picked file to POST /files. Returns { id, url }. */
 export async function uploadFile(
-  projectId: string,
+  projectId: string | null,
   file: { uri: string; name: string; type: string; webFile?: Blob },
 ): Promise<{ id: string; url: string }> {
   const token = await getToken();
   const form = new FormData();
-  form.append('project_id', projectId);
+  if (projectId) form.append('project_id', projectId);
   if (file.webFile) form.append('file', file.webFile, file.name);
   // React Native's FormData accepts { uri, name, type } objects for files.
   else form.append('file', { uri: file.uri, name: file.name, type: file.type } as unknown as Blob);
