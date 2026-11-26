@@ -97,14 +97,11 @@ def verify_otp(body: OtpVerifyIn, db: Session = Depends(get_db)) -> TokenOut:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "account disabled")
 
     if user.role == Role.customer:
+        linked = set(db.scalars(select(ProjectCustomer.project_id).where(ProjectCustomer.user_id == user.id)))
         for inv in invites:
-            linked = db.scalar(
-                select(ProjectCustomer).where(
-                    ProjectCustomer.project_id == inv.project_id, ProjectCustomer.user_id == user.id
-                )
-            )
-            if linked is None:
+            if inv.project_id not in linked:  # several invites for one project must link it once
                 db.add(ProjectCustomer(project_id=inv.project_id, user_id=user.id))
+                linked.add(inv.project_id)
             inv.status = InviteStatus.accepted
             inv.accepted_by = user.id
             audit.record(db, user, "accept_invite", "invite", inv.id)
