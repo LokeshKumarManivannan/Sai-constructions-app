@@ -63,6 +63,10 @@ With `DEV_EXPOSE_OTP=true` the login screen shows the OTP ("Test code"), so no S
 - Every write is recorded in `audit_log`.
 - All app text goes through `app/src/i18n/{en,ta}.json`. Tamil strings need review by a native speaker.
 
+## Deploy
+
+Test deployment on Vercel: see [DEPLOY_VERCEL.md](DEPLOY_VERCEL.md).
+
 ## Before production
 
 - Set a real `JWT_SECRET`, `DEV_EXPOSE_OTP=false`, and an SMS provider (MSG91 or Firebase) in `backend/app/auth/sms.py`.
