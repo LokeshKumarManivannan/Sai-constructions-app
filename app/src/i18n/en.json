@@ -307,5 +307,73 @@
     "paidTo": "Paid to (name)",
     "spends": "My spends",
     "site": "Which site?"
+  },
+  "docs": {
+    "title": "Documents",
+    "upload": "Upload document",
+    "group": "Section",
+    "type": "Document",
+    "name": "Title",
+    "pickFile": "Choose file (photo or PDF)",
+    "fileChosen": "File chosen",
+    "save": "Upload",
+    "visible": "Customer can see",
+    "hidden": "Only Sai Constructions",
+    "makeVisible": "Show to customer",
+    "makeHidden": "Hide from customer",
+    "version": "Version {{v}}",
+    "versions": "{{n}} versions",
+    "none": "No documents yet",
+    "open": "Open"
+  },
+  "dgroup": {
+    "property": "Property",
+    "approvals": "Approvals",
+    "technical": "Drawings & tests",
+    "utilities": "Utilities",
+    "contract": "Contract & receipts",
+    "internal": "Internal"
+  },
+  "dtype": {
+    "patta": "Patta",
+    "chitta": "Chitta",
+    "ec": "EC (Encumbrance)",
+    "sale_deed": "Sale deed",
+    "property_tax": "Property tax receipt",
+    "approved_plan": "Approved plan",
+    "building_permit": "Building permit",
+    "completion_certificate": "Completion certificate",
+    "architectural_drawing": "Architectural drawing",
+    "structural_drawing": "Structural drawing",
+    "soil_test": "Soil test",
+    "as_built_drawing": "As-built drawing",
+    "eb_connection": "EB connection",
+    "water_connection": "Water connection",
+    "sewage_connection": "Sewage connection",
+    "quote": "Quote",
+    "signed_agreement": "Signed agreement",
+    "change_order_approval": "Extra work approval",
+    "payment_receipt": "Payment receipt",
+    "supplier_bill": "Supplier bill",
+    "internal_note": "Internal note"
+  },
+  "handover": {
+    "title": "Handover",
+    "start": "Start handover checklist",
+    "add": "Add item",
+    "item": "Item",
+    "quantity": "Quantity",
+    "note": "Note",
+    "done": "Handed over",
+    "signed": "Signed by {{name}} on {{date}}",
+    "sign": "I received everything",
+    "signQuestion": "Confirm you received every item on this list? This completes the handover.",
+    "yesSign": "Yes, I received everything",
+    "waiting": "Waiting for Sai Constructions to finish the checklist",
+    "progress": "{{done}} of {{total}} ready"
+  },
+  "warranty": {
+    "title": "Warranty",
+    "soon": "Warranty details will be added here."
   }
 }

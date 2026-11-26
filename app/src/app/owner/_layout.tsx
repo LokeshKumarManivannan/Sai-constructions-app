@@ -30,6 +30,7 @@ export default function OwnerLayout() {
         <Stack.Screen name="cashbook" options={{ title: t('books.cashBook') }} />
         <Stack.Screen name="books" options={{ title: t('books.title') }} />
         <Stack.Screen name="payees" options={{ title: t('books.payees') }} />
+        <Stack.Screen name="document" options={{ title: t('docs.upload') }} />
         <Stack.Screen name="supervisors" options={{ title: t('owner.supervisors') }} />
       </Stack>
     </RoleGate>

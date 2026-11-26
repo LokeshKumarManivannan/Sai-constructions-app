@@ -3,6 +3,8 @@ import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
 import { ProjectExpenses } from '@/features/books/ProjectExpenses';
+import { DocumentList } from '@/features/documents/DocumentList';
+import { HandoverSection } from '@/features/documents/HandoverSection';
 import { ChangeOrderList } from '@/features/changeOrders/ChangeOrderList';
 import { PaymentsSection } from '@/features/payments/PaymentsSection';
 import { ProgressTimeline } from '@/features/progress/ProgressTimeline';
@@ -14,7 +16,7 @@ import { useApi } from '@/lib/useApi';
 import type { Project } from '@/lib/types';
 import { BigButton, ChipPicker, ErrorText, Loading, Screen } from '@/ui/components';
 
-const TABS = ['overview', 'money', 'extra', 'progress', 'expenses', 'milestones', 'team'] as const;
+const TABS = ['overview', 'money', 'extra', 'progress', 'expenses', 'milestones', 'documents', 'handover', 'team'] as const;
 type Tab = (typeof TABS)[number];
 
 export default function OwnerProject() {
@@ -32,6 +34,8 @@ export default function OwnerProject() {
     progress: t('progress.title'),
     expenses: t('books.expenses'),
     milestones: t('owner.milestones'),
+    documents: t('docs.title'),
+    handover: t('handover.title'),
     team: t('owner.team'),
   };
 
@@ -68,6 +72,17 @@ export default function OwnerProject() {
       )}
       {tab === 'expenses' && <ProjectExpenses projectId={project.id} />}
       {tab === 'milestones' && <MilestonesSection project={project} />}
+      {tab === 'documents' && (
+        <>
+          <BigButton
+            label={t('docs.upload')}
+            icon="cloud-upload"
+            onPress={() => router.push({ pathname: '/owner/document', params: { projectId: project.id } })}
+          />
+          <DocumentList projectId={project.id} viewer="owner" />
+        </>
+      )}
+      {tab === 'handover' && <HandoverSection projectId={project.id} viewer="owner" />}
       {tab === 'team' && <TeamSection projectId={project.id} />}
     </Screen>
   );
