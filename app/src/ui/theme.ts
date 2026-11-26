@@ -1,19 +1,20 @@
 /**
- * Sai Constructions look: blueprint blue (plans, trust) + site amber (helmets, progress)
- * on light concrete. Status colours always pair with an icon (UX rule 4).
+ * Sai Constructions look: laterite red (Chettinad brick) and charcoal on cement, with gold for
+ * progress. Status colours always pair with an icon (UX rule 4).
  */
 export const colors = {
-  bg: '#EDF0F3', // concrete
+  bg: '#F2F0ED', // cement
   card: '#FFFFFF',
-  text: '#17212B', // ink
-  muted: '#5B6675', // slate
-  border: '#D9DEE4',
-  brand: '#1E3A5F', // blueprint
-  brandDeep: '#142A45',
+  text: '#26211F', // ink
+  muted: '#6B625E',
+  border: '#E2DCD8',
+  brand: '#8E3B2E', // laterite (headers, hero panels)
+  brandDeep: '#74301F',
   brandText: '#FFFFFF',
-  brandSoft: '#E3EAF3',
-  accent: '#F2A900', // site amber
-  accentSoft: '#FDF1CF',
+  brandSoft: '#F4E6E2',
+  ink: '#3A3634', // charcoal (main buttons, selected chips)
+  accent: '#C9A227', // gold (progress, highlights)
+  accentSoft: '#FBF3DC',
   good: '#1B7F4C',
   goodBg: '#E2F3EA',
   warn: '#8A5A00',

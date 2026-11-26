@@ -6,7 +6,7 @@ import { BooksCard } from '@/features/books/BooksCard';
 import { ProjectCard } from '@/features/project/ProjectCard';
 import { useApi } from '@/lib/useApi';
 import type { Project } from '@/lib/types';
-import { BigButton, Empty, ErrorText, Field, Loading, Row, Screen, SectionTitle } from '@/ui/components';
+import { BigButton, Empty, ErrorText, Field, Loading, Screen, SectionTitle } from '@/ui/components';
 
 // Owner home: money at a glance, then every project.
 export default function OwnerHome() {
@@ -30,10 +30,6 @@ export default function OwnerHome() {
       {projects.map((p) => (
         <ProjectCard key={p.id} p={p} />
       ))}
-      <Row>
-        <BigButton label={t('owner.customers')} icon="person" variant="secondary" onPress={() => router.push('/owner/customers')} />
-        <BigButton label={t('owner.supervisors')} icon="people" variant="secondary" onPress={() => router.push('/owner/supervisors')} />
-      </Row>
     </Screen>
   );
 }

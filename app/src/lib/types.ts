@@ -231,11 +231,23 @@ export interface CashEntry {
 }
 
 export interface BooksSummary {
-  sites: { project_id: string; project_name: string; received_paise: number; spent_paise: number; net_paise: number }[];
+  sites: {
+    project_id: string;
+    project_name: string;
+    received_paise: number;
+    spent_paise: number;
+    net_paise: number;
+    contract_paise: number;
+    extras_paise: number;
+    expected_margin_paise: number;
+  }[];
   received_paise: number;
   spent_paise: number;
   cash_in_hand_paise: number;
   untagged_count: number;
+  received_month_paise: number;
+  spent_month_paise: number;
+  to_collect_paise: number;
 }
 
 export interface MyMoney {

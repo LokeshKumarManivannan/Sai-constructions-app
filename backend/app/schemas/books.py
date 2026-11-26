@@ -120,6 +120,9 @@ class SiteLedgerRow(BaseModel):
     received_paise: int
     spent_paise: int
     net_paise: int
+    contract_paise: int
+    extras_paise: int
+    expected_margin_paise: int
 
 
 class BooksSummaryOut(BaseModel):
@@ -128,6 +131,9 @@ class BooksSummaryOut(BaseModel):
     spent_paise: int
     cash_in_hand_paise: int
     untagged_count: int
+    received_month_paise: int
+    spent_month_paise: int
+    to_collect_paise: int
 
 
 class AdvanceOut(BaseModel):

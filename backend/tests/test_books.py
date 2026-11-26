@@ -97,3 +97,23 @@ def test_supervisor_money_and_petty_cash(client, owner):
     for h in (s, cust):
         assert client.get("/books/summary", headers=h).status_code == 403
         assert client.get("/expenses", headers=h).status_code == 403
+
+
+def test_home_numbers_and_expected_margin(client, owner):
+    from app.services.time import today_ist
+
+    today = today_ist().isoformat()
+    p, cust = setup_project(client, owner)  # contract 45,00,000
+    client.patch(f"/projects/{p['id']}", json={"status": "in_progress"}, headers=owner)
+    r = client.post(
+        f"/projects/{p['id']}/payments", json={"amount_paise": 5_00_000_00, "mode": "upi", "paid_on": today}, headers=cust
+    ).json()
+    client.post(f"/payments/{r['id']}/confirm", headers=owner)
+    ramesh = payee(client, owner)
+    client.post("/expenses", json={"payee_id": ramesh["id"], "amount_paise": 1_00_000_00, "mode": "upi", "paid_on": today, "project_id": p["id"], "category": "labour"}, headers=owner)
+    s = client.get("/books/summary", headers=owner).json()
+    assert s["received_month_paise"] == 5_00_000_00
+    assert s["spent_month_paise"] == 1_00_000_00
+    assert s["to_collect_paise"] == 40_00_000_00
+    site = s["sites"][0]
+    assert site["expected_margin_paise"] == 44_00_000_00

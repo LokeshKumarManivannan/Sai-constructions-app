@@ -2,14 +2,31 @@ import { Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
 import { RoleGate } from '@/auth/RoleGate';
-import { headerOptions } from '@/ui/header';
+import { Pressable } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
+
+import { HeaderTitle, headerOptions } from '@/ui/header';
+import { colors } from '@/ui/theme';
 
 export default function OwnerLayout() {
   const { t } = useTranslation();
   return (
     <RoleGate role="owner">
       <Stack screenOptions={headerOptions}>
-        <Stack.Screen name="index" options={{ title: t('company') }} />
+        <Stack.Screen
+          name="index"
+          options={{
+            headerTitle: () => <HeaderTitle title={t('company')} />,
+            headerLeft: () => (
+              <Pressable accessibilityLabel={t('menu.title')} onPress={() => router.push('/owner/menu')} hitSlop={10} style={{ marginLeft: 14, marginRight: 4 }}>
+                <Ionicons name="menu" size={28} color={colors.brandText} />
+              </Pressable>
+            ),
+          }}
+        />
+        <Stack.Screen name="menu" options={{ title: t('menu.title') }} />
+        <Stack.Screen name="downloads" options={{ title: t('menu.downloads') }} />
         <Stack.Screen name="customers/index" options={{ title: t('owner.customers') }} />
         <Stack.Screen name="customers/[id]" options={{ title: t('owner.customers') }} />
         <Stack.Screen name="projects/new" options={{ title: t('owner.newProject') }} />

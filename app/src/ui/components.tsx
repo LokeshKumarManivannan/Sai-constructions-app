@@ -53,22 +53,29 @@ export function Card({ children, onPress, style }: { children: ReactNode; onPres
 export function HeroCard({ children }: { children: ReactNode }) {
   return (
     <View style={styles.hero}>
-      <BlueprintGrid />
+      <BrickPattern />
       <View style={{ gap: space.s }}>{children}</View>
     </View>
   );
 }
 
-/** Faint plan-paper grid behind hero panels. */
-export function BlueprintGrid() {
-  const lines = Array.from({ length: 30 }, (_, i) => i);
+/** Faint brick coursing behind hero panels. */
+export function BrickPattern() {
+  // Running-bond brick pattern: horizontal courses every 18px, joints offset on alternate rows.
+  const rows = Array.from({ length: 40 }, (_, i) => i);
+  const joints = Array.from({ length: 16 }, (_, i) => i);
   return (
     <View pointerEvents="none" style={StyleSheet.absoluteFill}>
-      {lines.map((i) => (
-        <View key={`h${i}`} style={{ position: 'absolute', left: 0, right: 0, top: i * 28, height: 1, backgroundColor: 'rgba(255,255,255,0.06)' }} />
-      ))}
-      {lines.map((i) => (
-        <View key={`v${i}`} style={{ position: 'absolute', top: 0, bottom: 0, left: i * 28, width: 1, backgroundColor: 'rgba(255,255,255,0.06)' }} />
+      {rows.map((r) => (
+        <View key={`r${r}`} style={{ position: 'absolute', left: 0, right: 0, top: r * 18, height: 18 }}>
+          <View style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 1, backgroundColor: 'rgba(255,255,255,0.07)' }} />
+          {joints.map((j) => (
+            <View
+              key={j}
+              style={{ position: 'absolute', top: 0, height: 18, width: 1, left: j * 48 + (r % 2 ? 24 : 0), backgroundColor: 'rgba(255,255,255,0.07)' }}
+            />
+          ))}
+        </View>
       ))}
     </View>
   );
@@ -119,9 +126,9 @@ export function BigButton({
 }
 
 const buttonVariants = {
-  primary: { bg: colors.brand, fg: colors.brandText, border: colors.brand },
+  primary: { bg: colors.ink, fg: colors.brandText, border: colors.ink },
   accent: { bg: colors.accent, fg: colors.text, border: colors.accent },
-  secondary: { bg: colors.card, fg: colors.brand, border: colors.border },
+  secondary: { bg: colors.card, fg: colors.ink, border: colors.border },
   danger: { bg: colors.card, fg: colors.bad, border: colors.bad },
 };
 
@@ -224,7 +231,7 @@ export function ChipPicker<T extends string>({
       <Pressable
         key={o}
         onPress={() => onChange(o)}
-        style={[styles.pick, active && { backgroundColor: colors.brand, borderColor: colors.brand }]}
+        style={[styles.pick, active && { backgroundColor: colors.ink, borderColor: colors.ink }]}
       >
         {active && <Ionicons name="checkmark" size={16} color={colors.brandText} />}
         <Text style={{ fontSize: font.body - 1, fontWeight: active ? '600' : '400', color: active ? colors.brandText : colors.text }}>

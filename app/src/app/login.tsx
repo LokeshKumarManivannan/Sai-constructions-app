@@ -9,7 +9,7 @@ import { homeFor } from '@/auth/RoleGate';
 import { api, ApiError } from '@/lib/api';
 import type { User } from '@/lib/types';
 import { BuildingProgress } from '@/ui/BuildingProgress';
-import { BigButton, BlueprintGrid, ErrorText, Field, Muted } from '@/ui/components';
+import { BigButton, BrickPattern, ErrorText, Field, Muted } from '@/ui/components';
 import { Wordmark } from '@/ui/header';
 import { Text } from '@/ui/Text';
 import { colors, font, radius, space } from '@/ui/theme';
@@ -58,7 +58,7 @@ export default function Login() {
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.brandDeep }}>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <View style={{ padding: space.l, paddingBottom: space.xl * 1.5, overflow: 'hidden' }}>
-          <BlueprintGrid />
+          <BrickPattern />
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <Wordmark size={18} />
             <Pressable

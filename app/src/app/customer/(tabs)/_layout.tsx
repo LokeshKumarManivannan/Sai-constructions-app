@@ -4,7 +4,7 @@ import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 
-import { headerOptions } from '@/ui/header';
+import { HeaderTitle, headerOptions } from '@/ui/header';
 import { colors, family } from '@/ui/theme';
 
 // Four big tabs, icon + word (UX rule 2).
@@ -18,10 +18,10 @@ export default function CustomerTabs() {
     <Tabs
       screenOptions={{
         ...headerOptions,
-        headerTitle: t('company'),
+        headerTitle: () => <HeaderTitle title={t('company')} />,
         tabBarActiveTintColor: colors.brand,
         tabBarInactiveTintColor: colors.muted,
-        tabBarLabelStyle: { fontSize: 13, fontFamily: family.bold },
+        tabBarLabelStyle: { fontSize: 12, fontFamily: family.bold },
         tabBarStyle: { height: 74, paddingTop: 6, paddingBottom: 8, borderTopColor: colors.border, backgroundColor: colors.card },
       }}
     >

@@ -50,6 +50,7 @@ export default function CashBook() {
         <Text style={{ fontSize: font.big, fontWeight: '800', color: (data?.balance_paise ?? 0) < 0 ? colors.bad : colors.text }}>
           {formatINR(data?.balance_paise ?? 0)}
         </Text>
+        <Muted>{t('books.cashOnlyNote')}</Muted>
       </Card>
       <Card>
         <Title>{t('books.addCash')}</Title>

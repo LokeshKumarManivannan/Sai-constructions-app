@@ -238,13 +238,13 @@
   },
   "books": {
     "title": "Books",
-    "cashInHand": "Cash in hand",
+    "cashInHand": "Cash in the cash box",
     "untagged": "Payments missing details",
     "fixUntagged": "Fix missing details ({{n}})",
     "allFixed": "All payments have details",
-    "paySomeone": "Pay someone",
-    "cashBook": "Cash book",
-    "ledger": "Site profit",
+    "paySomeone": "Record payment",
+    "cashBook": "Cash box",
+    "ledger": "Site money",
     "payees": "Payees",
     "received": "Received",
     "spent": "Spent",
@@ -286,7 +286,15 @@
     "spentHere": "Spent on this site",
     "confirmed": "Received by them",
     "noEntries": "No entries yet",
-    "date": "Date (DD/MM/YYYY)"
+    "date": "Date (DD/MM/YYYY)",
+    "cashOnlyNote": "Only cash entered in this app: customer cash, cash payments and ATM withdrawals. It is not your bank balance.",
+    "receivedMonth": "Received this month",
+    "spentMonth": "Spent this month",
+    "toCollect": "Still to collect from customers",
+    "siteMoneyNote": "In and out so far. Expected margin = contract + approved extra work − spent so far.",
+    "inMinusOut": "In − out so far",
+    "expectedMargin": "Expected margin",
+    "contract": "Contract + extras"
   },
   "ptype": {
     "labour": "Labour",
@@ -388,5 +396,29 @@
   "warranty": {
     "title": "Warranty",
     "soon": "Warranty details will be added here."
+  },
+  "menu": {
+    "title": "Menu",
+    "projects": "Projects",
+    "customers": "Customers",
+    "supervisors": "Supervisors",
+    "payees": "Payees",
+    "cashBox": "Cash box",
+    "siteMoney": "Site money",
+    "allPayments": "All payments out",
+    "downloads": "Downloads"
+  },
+  "downloads": {
+    "title": "Downloads",
+    "project": "For one project",
+    "pickProject": "Choose a project",
+    "projectStatement": "Project statement (Excel)",
+    "projectBills": "Project bill photos (ZIP)",
+    "year": "For a financial year",
+    "pickYear": "Choose the year (April to March)",
+    "yearStatement": "Year statement for income tax (Excel)",
+    "yearBills": "All bill photos for the year (ZIP)",
+    "note": "Excel files list money received and money paid out with dates, modes and transaction IDs. Each bill photo has the same name in the Excel file and in the ZIP.",
+    "preparing": "Preparing…"
   }
 }

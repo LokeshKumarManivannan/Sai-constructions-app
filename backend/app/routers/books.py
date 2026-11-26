@@ -40,6 +40,7 @@ from app.schemas.books import (
 from app.services import audit, books
 from app.services.access import get_project_for, supervisor_trades
 from app.services.files import signed_url
+from app.services.time import today_ist
 
 router = APIRouter(tags=["books"])
 
@@ -263,7 +264,11 @@ def books_summary(db: Session = Depends(get_db), _: User = Depends(require_owner
     sites = books.site_ledger(db)
     entries = books.cash_book(db)
     active = db.scalars(select(Expense).where(Expense.status == ExpenseStatus.active)).all()
+    received_month, spent_month = books.month_totals(db, today_ist())
     return BooksSummaryOut(
+        received_month_paise=received_month,
+        spent_month_paise=spent_month,
+        to_collect_paise=books.to_collect(db),
         sites=sites,
         received_paise=sum(s["received_paise"] for s in sites),
         spent_paise=sum(s["spent_paise"] for s in sites),

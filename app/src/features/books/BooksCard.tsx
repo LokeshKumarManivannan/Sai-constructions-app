@@ -16,10 +16,28 @@ function greeting(t: (k: string) => string) {
   return h < 12 ? t('owner.morning') : h < 17 ? t('owner.afternoon') : t('owner.evening');
 }
 
+const soft = 'rgba(255,255,255,0.78)';
+
+function Figure({ label, paise, icon, color }: { label: string; paise: number; icon: React.ComponentProps<typeof Ionicons>['name']; color: string }) {
+  return (
+    <View style={{ flex: 1, gap: 2 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+        <Ionicons name={icon} size={16} color={color} />
+        <Text style={{ color: soft, fontSize: 14 }} numberOfLines={2}>
+          {label}
+        </Text>
+      </View>
+      <Text style={{ color: colors.brandText, fontSize: font.title + 1, fontWeight: '800' }} numberOfLines={1}>
+        {formatINR(paise)}
+      </Text>
+    </View>
+  );
+}
+
 function Shortcut({ icon, label, onPress }: { icon: React.ComponentProps<typeof Ionicons>['name']; label: string; onPress: () => void }) {
   return (
     <Pressable onPress={onPress} style={({ pressed }) => [{ flex: 1, alignItems: 'center', gap: 6, paddingVertical: space.s }, pressed && { opacity: 0.7 }]}>
-      <View style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.1)', alignItems: 'center', justifyContent: 'center' }}>
+      <View style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.12)', alignItems: 'center', justifyContent: 'center' }}>
         <Ionicons name={icon} size={22} color={colors.accent} />
       </View>
       <Text style={{ color: colors.brandText, fontSize: 14, fontWeight: '600', textAlign: 'center' }}>{label}</Text>
@@ -27,42 +45,44 @@ function Shortcut({ icon, label, onPress }: { icon: React.ComponentProps<typeof 
   );
 }
 
-/** Owner home hero: cash in hand, payments missing details, and the money shortcuts. */
+/** Owner home hero: this month's money in and out, what customers still owe, and payments missing details. */
 export function BooksCard() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const { data } = useApi<BooksSummary>('/books/summary');
-  const cash = data?.cash_in_hand_paise ?? 0;
 
   return (
     <HeroCard>
-      <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: font.body }}>
+      <Text style={{ color: soft, fontSize: font.body }}>
         {greeting(t)}, {user?.full_name?.split(' ')[0]}
       </Text>
-      <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: font.small, marginTop: space.s }}>{t('books.cashInHand')}</Text>
-      <Text style={{ color: cash < 0 ? '#FF9B8F' : colors.brandText, fontSize: font.big + 4, fontWeight: '800' }}>{formatINR(cash)}</Text>
 
-      {data && data.untagged_count > 0 ? (
+      <Text style={{ color: soft, fontSize: font.small, marginTop: space.s }}>{t('books.toCollect')}</Text>
+      <Text style={{ color: colors.brandText, fontSize: font.big + 2, fontWeight: '800' }} numberOfLines={1}>
+        {formatINR(data?.to_collect_paise ?? 0)}
+      </Text>
+
+      <View style={{ flexDirection: 'row', gap: space.m, marginTop: space.xs }}>
+        <Figure label={t('books.receivedMonth')} paise={data?.received_month_paise ?? 0} icon="arrow-down-circle" color="#9BE0B8" />
+        <Figure label={t('books.spentMonth')} paise={data?.spent_month_paise ?? 0} icon="arrow-up-circle" color={colors.accent} />
+      </View>
+
+      {data && data.untagged_count > 0 && (
         <Pressable
           onPress={() => router.push('/owner/untagged')}
-          style={{ flexDirection: 'row', alignItems: 'center', gap: space.s, backgroundColor: colors.accent, borderRadius: radius.control, padding: space.s + 2 }}
+          style={{ flexDirection: 'row', alignItems: 'center', gap: space.s, backgroundColor: colors.accent, borderRadius: radius.control, padding: space.s + 2, marginTop: space.xs }}
         >
-          <Ionicons name="receipt" size={22} color={colors.brandDeep} />
-          <Text style={{ flex: 1, color: colors.brandDeep, fontWeight: '700', fontSize: font.body }}>{t('books.fixUntagged', { n: data.untagged_count })}</Text>
-          <Ionicons name="chevron-forward" size={20} color={colors.brandDeep} />
+          <Ionicons name="receipt" size={22} color={colors.text} />
+          <Text style={{ flex: 1, color: colors.text, fontWeight: '700', fontSize: font.body }}>{t('books.fixUntagged', { n: data.untagged_count })}</Text>
+          <Ionicons name="chevron-forward" size={20} color={colors.text} />
         </Pressable>
-      ) : (
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s }}>
-          <Ionicons name="checkmark-circle" size={20} color="#7FD3A6" />
-          <Text style={{ color: '#7FD3A6', fontWeight: '600' }}>{t('books.allFixed')}</Text>
-        </View>
       )}
 
-      <View style={{ flexDirection: 'row', marginTop: space.s, borderTopWidth: 1, borderColor: 'rgba(255,255,255,0.12)', paddingTop: space.s }}>
-        <Shortcut icon="arrow-up-circle" label={t('books.paySomeone')} onPress={() => router.push('/owner/pay-out')} />
-        <Shortcut icon="wallet" label={t('books.cashBook')} onPress={() => router.push('/owner/cashbook')} />
+      <View style={{ flexDirection: 'row', marginTop: space.xs, borderTopWidth: 1, borderColor: 'rgba(255,255,255,0.15)', paddingTop: space.s }}>
+        <Shortcut icon="create" label={t('books.paySomeone')} onPress={() => router.push('/owner/pay-out')} />
         <Shortcut icon="stats-chart" label={t('books.ledger')} onPress={() => router.push('/owner/books')} />
-        <Shortcut icon="people-circle" label={t('books.payees')} onPress={() => router.push('/owner/payees')} />
+        <Shortcut icon="download" label={t('menu.downloads')} onPress={() => router.push('/owner/downloads')} />
+        <Shortcut icon="menu" label={t('menu.title')} onPress={() => router.push('/owner/menu')} />
       </View>
     </HeroCard>
   );
