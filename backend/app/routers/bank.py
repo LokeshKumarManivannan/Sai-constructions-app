@@ -5,6 +5,7 @@ from datetime import UTC, datetime, timedelta
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from sqlalchemy import func, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.auth.deps import require_owner
@@ -83,6 +84,9 @@ def _out(db: Session, t: BankTxn, with_suggestion: bool) -> BankTxnOut:
         amount_paise=t.amount_paise,
         direction=t.direction,
         narration=t.narration,
+        raw_line=t.raw_line,
+        balance_paise=t.balance_paise,
+        verified=t.verified,
         ref=t.ref,
         counterparty=t.counterparty,
         source=t.source,
@@ -119,20 +123,28 @@ async def import_statement(
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, str(e)) from None
     except Exception:  # unreadable/corrupt workbook
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "Could not read this file. Download it again from net banking (Excel or PDF).") from None
-    r = bank.import_rows(db, rows)
-    audit.record(db, owner, "import", "bank_statement", None, after={"file": file.filename, **{k: str(v) for k, v in r.__dict__.items()}})
-    db.commit()
+    try:
+        r = bank.import_rows(db, rows)
+        audit.record(db, owner, "import", "bank_statement", None, after={"file": file.filename, **{k: str(v) for k, v in r.__dict__.items()}})
+        db.commit()  # all lines or none
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status.HTTP_409_CONFLICT, "Another upload was saving at the same time. Upload the file again.") from None
     return ImportOut(**r.__dict__)
 
 
 @router.get("/bank/txns", response_model=list[BankTxnOut])
 def list_txns(state: BankTxnStatus = BankTxnStatus.to_explain, db: Session = Depends(get_db), _: User = Depends(require_owner)):
+    bank.refresh_links(db)
+    db.commit()
     rows = db.scalars(select(BankTxn).where(BankTxn.status == state).order_by(BankTxn.txn_date.desc(), BankTxn.created_at).limit(300))
     return [_out(db, t, state == BankTxnStatus.to_explain) for t in rows]
 
 
 @router.get("/bank/txns/{txn_id}", response_model=BankTxnOut)
 def get_txn(txn_id: uuid.UUID, db: Session = Depends(get_db), _: User = Depends(require_owner)):
+    bank.refresh_links(db)
+    db.commit()
     return _out(db, _txn(db, txn_id), True)
 
 
@@ -152,10 +164,13 @@ def txn_candidates(txn_id: uuid.UUID, db: Session = Depends(get_db), _: User = D
 
 @router.get("/bank/summary", response_model=BankSummaryOut)
 def summary(db: Session = Depends(get_db), _: User = Depends(require_owner)):
-    return bank_summary(db)
+    out = bank_summary(db)
+    db.commit()
+    return out
 
 
 def bank_summary(db: Session) -> BankSummaryOut:
+    bank.refresh_links(db)
     today = today_ist()
     month_start = today.replace(day=1)
     last_month_end = month_start - timedelta(days=1)
@@ -168,6 +183,7 @@ def bank_summary(db: Session) -> BankSummaryOut:
         last_statement_date=last,
         # Due from the 1st until a statement reaching the last days of last month is uploaded.
         statement_due=last is None or last < last_month_end - timedelta(days=3),
+        gaps=bank.balance_gaps(db),
     )
 
 

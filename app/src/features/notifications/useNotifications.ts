@@ -21,7 +21,8 @@ export type Notification = {
     | 'extra_decided'
     | 'supervisor_spent'
     | 'bank_to_explain'
-    | 'bank_statement_due';
+    | 'bank_statement_due'
+    | 'bank_gap';
   action: boolean;
   project_id: string | null;
   project_name: string | null;

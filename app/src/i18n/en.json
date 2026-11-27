@@ -444,7 +444,8 @@
     "untagged_other": "{{count}} payments need a reason or bill photo.",
     "bank_to_explain_one": "1 bank entry needs explaining: who, which site, what for.",
     "bank_to_explain_other": "{{count}} bank entries need explaining: who, which site, what for.",
-    "bank_statement_due": "Upload last month's ICICI bank statement."
+    "bank_statement_due": "Upload last month's ICICI bank statement.",
+    "bank_gap": "Bank statement missing between {{from}} and {{date}}: some transactions are not in the app yet."
   },
   "stage": {
     "title": "Where we are",
@@ -499,6 +500,12 @@
     "pdfPassword": "PDF password (ICICI: usually date of birth, DDMMYYYY)",
     "unlock": "Open and read",
     "wrongPassword": "That password did not open the PDF. Try again.",
-    "firstUpload": "Upload your first bank statement"
+    "firstUpload": "Upload your first bank statement",
+    "gap": "Missing statement: the balance jumps between {{from}} and {{to}}. Upload the statement covering those dates.",
+    "verified": "Checked: every line adds up with the bank's running balance.",
+    "notVerified": "This file has no running balance, so the lines could not be cross-checked.",
+    "balanceAfter": "Balance after",
+    "lineVerified": "✓ Matches the bank's running balance",
+    "lineNotVerified": "Not cross-checked (no balance in the file)"
   }
 }

@@ -14,6 +14,7 @@ class ImportOut(BaseModel):
     to_explain: int
     first_date: date | None
     last_date: date | None
+    verified: bool  # every line proved by the bank's running balance
 
 
 class SuggestionOut(BaseModel):
@@ -39,6 +40,9 @@ class BankTxnOut(BaseModel):
     amount_paise: int
     direction: BankDirection
     narration: str
+    raw_line: str
+    balance_paise: int | None
+    verified: bool
     ref: str | None
     counterparty: str | None
     source: BankSource
@@ -55,6 +59,7 @@ class BankSummaryOut(BaseModel):
     month_explained: int
     last_statement_date: date | None
     statement_due: bool  # last month's statement not uploaded yet
+    gaps: list[tuple[date, date]]  # balance jumps between uploads: a statement period is missing
 
 
 class NewPayeeIn(BaseModel):

@@ -71,6 +71,11 @@ export default function BankInbox() {
             </Text>
             {s.month_total > 0 && <Muted>{t('bank.monthScore', { done: s.month_explained, total: s.month_total })}</Muted>}
             <Muted>{s.last_statement_date ? t('bank.lastStatement', { date: showDate(s.last_statement_date) }) : t('bank.noStatement')}</Muted>
+            {s.gaps.map(([a, b]) => (
+              <View key={a + b} style={{ backgroundColor: colors.badBg, borderRadius: radius.control, padding: space.s + 2 }}>
+                <Text style={{ color: colors.bad, fontWeight: '700' }}>{t('bank.gap', { from: showDate(a), to: showDate(b) })}</Text>
+              </View>
+            ))}
           </>
         )}
         <BigButton label={t('bank.upload')} icon="cloud-upload" onPress={upload} busy={busy && !locked} />
@@ -86,6 +91,7 @@ export default function BankInbox() {
           <View style={{ backgroundColor: colors.goodBg, borderRadius: radius.control, padding: space.m, gap: 2 }}>
             <Text style={{ fontWeight: '700', color: colors.good }}>{t('bank.imported', { added: result.added, rows: result.rows })}</Text>
             <Muted>{t('bank.importDetail', { matched: result.matched, todo: result.to_explain, dup: result.duplicates })}</Muted>
+            <Muted>{result.verified ? t('bank.verified') : t('bank.notVerified')}</Muted>
           </View>
         )}
         <ErrorText>{error}</ErrorText>

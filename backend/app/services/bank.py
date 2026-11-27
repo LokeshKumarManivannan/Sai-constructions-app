@@ -64,13 +64,25 @@ def site_from_text(db: Session, text: str) -> Project | None:
 
 # ---------- import ----------
 
-def _dedup_key(r: Row, ref: str | None, direction: BankDirection) -> str:
-    amount = r.debit_paise or r.credit_paise
-    if ref:
-        raw = f"{r.txn_date}|{direction.value}|{amount}|{ref}"
-    else:
-        raw = f"{r.txn_date}|{direction.value}|{amount}|{r.balance_paise}|{r.narration[:80]}"
-    return hashlib.sha256(raw.encode()).hexdigest()[:40]
+def dedup_keys(rows: list[Row]) -> list[str]:
+    """Same bank line -> same key, whether it came from the Excel or the PDF of the same month.
+
+    The running balance pins a line to its place in the account. The occurrence number keeps genuine
+    repeats apart (e.g. ₹500 out, ₹500 back, ₹500 out again the same day can end on the same balance).
+    Statements always cover whole days, so the count is the same in every file holding that day.
+    """
+    seen: dict[str, int] = {}
+    keys = []
+    for r in rows:
+        direction = "debit" if r.debit_paise else "credit"
+        amount = r.debit_paise or r.credit_paise
+        if r.balance_paise is not None:
+            base = f"{r.txn_date}|{direction}|{amount}|bal{r.balance_paise}"
+        else:
+            base = f"{r.txn_date}|{direction}|{amount}|{re.sub(r'[^A-Za-z0-9]', '', r.narration).upper()[:60]}"
+        seen[base] = seen.get(base, 0) + 1
+        keys.append(hashlib.sha256(f"{base}|#{seen[base]}".encode()).hexdigest()[:40])
+    return keys
 
 
 @dataclass
@@ -82,27 +94,32 @@ class ImportResult:
     to_explain: int
     first_date: date | None
     last_date: date | None
+    verified: bool  # every line proved by the running balance
 
 
 def import_rows(db: Session, rows: list[Row], source: BankSource = BankSource.statement) -> ImportResult:
+    """Rows must be oldest first (read_statement guarantees it). All-or-nothing: the caller commits once."""
     ensure_site_codes(db)
     added = dup = matched = 0
-    for r in rows:
-        direction = BankDirection.debit if r.debit_paise else BankDirection.credit
-        n = parse_narration(r.narration, r.cheque)
-        key = _dedup_key(r, n.ref, direction)
+    day_pos: dict[date, int] = {}
+    for r, key in zip(rows, dedup_keys(rows)):
+        day_pos[r.txn_date] = day_pos.get(r.txn_date, 0) + 1
         if db.scalar(select(BankTxn.id).where(BankTxn.dedup_key == key)):
             dup += 1
             continue
+        n = parse_narration(r.narration, r.cheque)
         t = BankTxn(
             txn_date=r.txn_date,
             amount_paise=r.debit_paise or r.credit_paise,
-            direction=direction,
+            direction=BankDirection.debit if r.debit_paise else BankDirection.credit,
             narration=r.narration,
             ref=n.ref,
             counterparty=n.counterparty,
             counterparty_key=n.key,
             balance_paise=r.balance_paise,
+            day_seq=day_pos[r.txn_date],
+            raw_line=r.raw or r.narration,
+            verified=r.verified,
             source=source,
             dedup_key=key,
         )
@@ -112,7 +129,25 @@ def import_rows(db: Session, rows: list[Row], source: BankSource = BankSource.st
         if auto_match(db, t):
             matched += 1
     dates = [r.txn_date for r in rows]
-    return ImportResult(len(rows), added, dup, matched, added - matched, min(dates, default=None), max(dates, default=None))
+    return ImportResult(len(rows), added, dup, matched, added - matched, min(dates, default=None), max(dates, default=None),
+                        all(r.verified for r in rows))
+
+
+def balance_gaps(db: Session) -> list[tuple[date, date]]:
+    """Across everything uploaded so far: places where the running balance jumps, i.e. a period whose
+    statement is missing. Returns (last date before the jump, first date after it)."""
+    prev = None
+    gaps = []
+    rows = db.scalars(
+        select(BankTxn).where(BankTxn.balance_paise.is_not(None)).order_by(BankTxn.txn_date, BankTxn.day_seq, BankTxn.created_at)
+    )
+    for t in rows:
+        if prev is not None:
+            delta = -t.amount_paise if t.direction == BankDirection.debit else t.amount_paise
+            if prev.balance_paise + delta != t.balance_paise:
+                gaps.append((prev.txn_date, t.txn_date))
+        prev = t
+    return gaps
 
 
 # ---------- matching to entries already in the books ----------
@@ -152,19 +187,34 @@ def _ref_of(entry) -> str:
 
 
 def auto_match(db: Session, t: BankTxn) -> bool:
-    """Link only when it is unambiguous: same reference, or the only entry with that amount within 3 days."""
-    cands = candidates(db, t)
-    pick = None
-    if t.ref:
-        same = [c for c in cands if t.ref.upper() in _ref_of(c) or (_ref_of(c) and _ref_of(c) in t.ref.upper())]
-        pick = same[0] if len(same) == 1 else None
-    if pick is None and len(cands) == 1 and not _ref_of(cands[0]):
-        pick = cands[0]
-    if pick is None:
+    """Link automatically only on the same transaction reference (UPI / IMPS / NEFT / cheque number).
+    Same amount alone is never enough: two ₹5,000 payments to different people would get swapped.
+    Those are offered as "Already recorded?" for the owner to tap."""
+    if not t.ref:
         return False
-    link(t, pick)
+    ref = t.ref.upper()
+    same = [c for c in candidates(db, t) if _ref_of(c) and (ref in _ref_of(c) or _ref_of(c) in ref)]
+    if len(same) != 1:
+        return False
+    link(t, same[0])
     t.auto_matched = True
     return True
+
+
+def refresh_links(db: Session) -> None:
+    """If an entry a bank line was explained with is later voided, follow it to its correction
+    (same amount) or put the bank line back on the "to explain" list, so it can't silently drop out."""
+    for t in db.scalars(select(BankTxn).where(BankTxn.status == BankTxnStatus.done)):
+        entry = db.get(Expense, t.expense_id) if t.expense_id else db.get(CustomerPayment, t.payment_id) if t.payment_id else None
+        if entry is None or entry.status.value != "void":
+            continue
+        model = type(entry)
+        fix = db.scalar(select(model).where(model.corrects_id == entry.id, model.status != entry.status))
+        if fix is not None and fix.amount_paise == t.amount_paise:
+            link(t, fix)
+        else:
+            t.status, t.expense_id, t.payment_id, t.auto_matched = BankTxnStatus.to_explain, None, None, False
+    db.flush()
 
 
 def link(t: BankTxn, entry) -> None:

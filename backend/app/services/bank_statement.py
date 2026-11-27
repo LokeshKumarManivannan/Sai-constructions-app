@@ -27,6 +27,8 @@ class Row:
     narration: str
     balance_paise: int | None
     cheque: str | None
+    raw: str = ""  # the line exactly as read from the file, kept for audit
+    verified: bool = False  # balance continuity proved this row's amount and direction
 
 
 class StatementError(ValueError):
@@ -115,11 +117,15 @@ def _pdf_lines(data: bytes, password: str | None) -> list[Row]:
         amounts = current["amounts"]
         if len(amounts) >= 2:
             amount, bal = abs(amounts[-2]), amounts[-1]
-            if prev_bal is not None:
-                debit = bal < prev_bal
-            else:
-                debit = bool(re.search(r"\b(DR|WDL|DEBIT|TO)\b", current["text"].upper()))
-            out.append(Row(current["date"], amount if debit else 0, 0 if debit else amount, current["text"].strip(), bal, None))
+            if prev_bal is None:
+                raise StatementError("Could not find the opening balance in this PDF, so money in and out cannot be told apart. "
+                                     "Try the Excel download for the same dates.")
+            debit = bal < prev_bal
+            if abs(bal - prev_bal) != amount:
+                raise StatementError(f"The balance does not add up at the line on {current['date'].strftime('%d/%m/%Y')}. "
+                                     "Nothing was imported. Try the Excel download for the same dates.")
+            out.append(Row(current["date"], amount if debit else 0, 0 if debit else amount, current["text"].strip(), bal, None,
+                           raw=current["raw"], verified=True))
             prev_bal = bal
         elif len(amounts) == 1 and re.search(r"opening|b/f|brought", current["text"], re.I):
             prev_bal = amounts[0]
@@ -133,9 +139,10 @@ def _pdf_lines(data: bytes, password: str | None) -> list[Row]:
                     flush()
                     rest = line[m.end():]
                     nums = [parse_paise(a) for a in _AMOUNT.findall(rest)]
-                    current = {"date": parse_date(m.group(1)), "text": _AMOUNT.sub(" ", rest), "amounts": nums}
+                    current = {"date": parse_date(m.group(1)), "text": _AMOUNT.sub(" ", rest), "amounts": nums, "raw": line}
                 elif current is not None and not _AMOUNT.search(line) and len(line) < 120:
                     current["text"] = _join_wrapped(current["text"], line)  # wrapped remarks
+                    current["raw"] += "\n" + line
                 else:
                     flush()
                     if re.search(r"opening balance|\bb/f\b|brought forward", line, re.I) and _AMOUNT.search(line):
@@ -276,7 +283,9 @@ def read_statement(data: bytes, filename: str, password: str | None = None) -> l
             continue  # blank lines, page breaks, footer totals
         debit, credit = abs(parse_paise(cell("debit"))), abs(parse_paise(cell("credit")))
         if debit == 0 and credit == 0:
-            continue
+            continue  # nothing moved; if this hides a misread amount, the balance check below catches it
+        if debit and credit:
+            raise StatementError(f"The line on {d.strftime('%d/%m/%Y')} has both a withdrawal and a deposit. Nothing was imported.")
         bal = cell("balance")
         chq = str(cell("cheque") or "").strip() or None
         rows.append(
@@ -287,11 +296,42 @@ def read_statement(data: bytes, filename: str, password: str | None = None) -> l
                 narration=" ".join(str(cell("narration") or "").split()),
                 balance_paise=parse_paise(bal) if bal not in (None, "") else None,
                 cheque=None if chq in ("-", "0", "0.0") else chq,
+                raw=" | ".join(str(c) for c in raw if c not in (None, "")),
             )
         )
     if not rows:
         raise StatementError("No transactions found in this file.")
-    return rows
+    return check_balances(rows)
+
+
+def check_balances(rows: list[Row]) -> list[Row]:
+    """Prove the file was read completely and correctly, using the bank's own running balance:
+    for every line, previous balance − withdrawal + deposit must equal this balance. A missing line,
+    a misread amount or a swapped column breaks the chain, and then nothing is imported.
+    Returns the rows oldest first (some downloads list newest first)."""
+    if len(rows) < 2 or any(r.balance_paise is None for r in rows):
+        if any(r.balance_paise is not None for r in rows) and len(rows) >= 2:
+            raise StatementError("Some lines have no balance, so the file cannot be checked. Nothing was imported.")
+        return sorted(rows, key=lambda r: r.txn_date)  # cannot prove; rows stay unverified
+
+    def first_break(seq: list[Row]) -> int | None:
+        for i in range(1, len(seq)):
+            if seq[i - 1].balance_paise - seq[i].debit_paise + seq[i].credit_paise != seq[i].balance_paise:
+                return i
+        return None
+
+    for seq in (rows, rows[::-1]):
+        if first_break(seq) is None and all(seq[i - 1].txn_date <= seq[i].txn_date for i in range(1, len(seq))):
+            for r in seq:
+                r.verified = True
+            return list(seq)
+    forward = rows if rows[0].txn_date <= rows[-1].txn_date else rows[::-1]
+    bad = forward[first_break(forward) or 1]
+    raise StatementError(
+        f"The balance does not add up at the line on {bad.txn_date.strftime('%d/%m/%Y')} "
+        f"({bad.narration[:40]}). A line may be missing or misread, so nothing was imported. "
+        "Try the Excel download for the same dates."
+    )
 
 
 # ---------- narration: reference, counterparty, cash ----------

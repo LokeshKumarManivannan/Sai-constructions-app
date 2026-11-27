@@ -4,7 +4,7 @@ import enum
 import uuid
 from datetime import date, datetime
 
-from sqlalchemy import BigInteger, Boolean, Date, DateTime, Enum, ForeignKey, String, Text
+from sqlalchemy import BigInteger, Boolean, Date, DateTime, Enum, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db import Base
@@ -28,6 +28,9 @@ class BankTxnStatus(str, enum.Enum):
 
 
 class BankTxn(Base):
+    """One line from the bank. Date, amount, direction and text are never edited after import;
+    only its status and links to entries in the books change."""
+
     __tablename__ = "bank_txns"
 
     id: Mapped[uuid.UUID] = uuid_pk()
@@ -39,6 +42,10 @@ class BankTxn(Base):
     counterparty: Mapped[str | None] = mapped_column(String(160))  # name or UPI ID read from the narration
     counterparty_key: Mapped[str | None] = mapped_column(String(160), index=True)  # normalised, for payee memory
     balance_paise: Mapped[int | None] = mapped_column(BigInteger)
+    # Position within its day in the bank's own order, so the running balance can be re-checked across uploads.
+    day_seq: Mapped[int] = mapped_column(Integer, default=0)
+    raw_line: Mapped[str] = mapped_column(Text, default="")  # exactly as read from the bank file; never edited
+    verified: Mapped[bool] = mapped_column(Boolean, default=False)  # proved by the running balance
     source: Mapped[BankSource] = mapped_column(Enum(BankSource, name="bank_source"))
     dedup_key: Mapped[str] = mapped_column(String(128), unique=True)
     status: Mapped[BankTxnStatus] = mapped_column(Enum(BankTxnStatus, name="bank_txn_status"), default=BankTxnStatus.to_explain, index=True)

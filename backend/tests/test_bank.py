@@ -178,3 +178,102 @@ def test_locked_pdf(client, owner):
     assert r.status_code == 423
     r = client.post("/bank/import", files={"file": ("Statement.pdf", data, "application/pdf")}, data={"password": "01011960"}, headers=owner)
     assert r.status_code == 200 and r.json()["added"] == 6
+
+
+# ---------- integrity: nothing doubled, nothing missed, nothing changed ----------
+
+def test_excel_then_pdf_same_month_not_doubled(client, owner):
+    assert _upload(client, owner, icici_xlsx(ROWS)).json()["added"] == 6
+    r = client.post("/bank/import", files={"file": ("s.pdf", icici_pdf(ROWS), "application/pdf")}, headers=owner).json()
+    assert r["added"] == 0 and r["duplicates"] == 6
+    # Overlapping download (same days plus one new day) adds only the new day.
+    more = ROWS + [("20/11/2026", "UPI/431700099911/tiles/kumar.tiles@okhdfc", 7_500, 0)]
+    r = _upload(client, owner, icici_xlsx(more)).json()
+    assert r["added"] == 1 and r["duplicates"] == 6
+
+
+def test_genuine_repeats_kept():
+    # ₹500 out, ₹500 back (failed payment refund), ₹500 out again: two lines end on the same balance.
+    rows = [("05/11/2026", "UPI/431100000001/retry/a@ybl", 500, 0),
+            ("05/11/2026", "UPI/431100000001/REV/a@ybl", 0, 500),
+            ("05/11/2026", "UPI/431100000002/retry/a@ybl", 500, 0)]
+    parsed = read_statement(icici_xlsx(rows), "x.xlsx")
+    from app.services.bank import dedup_keys
+    assert len(parsed) == 3 and len(set(dedup_keys(parsed))) == 3
+
+
+def test_missing_or_misread_line_rejects_whole_file(client, owner):
+    data = icici_xlsx(ROWS)
+    from openpyxl import load_workbook
+    wb = load_workbook(io.BytesIO(data))
+    ws = wb.active
+    ws.delete_rows(9)  # drop one transaction but keep the others' balances
+    buf = io.BytesIO()
+    wb.save(buf)
+    r = _upload(client, owner, buf.getvalue())
+    assert r.status_code == 422 and "balance does not add up" in r.json()["detail"]
+    assert client.get("/bank/txns", headers=owner).json() == []  # nothing imported
+
+    wb = load_workbook(io.BytesIO(data))
+    wb.active["G9"] = "50,000.00"  # misread amount
+    buf = io.BytesIO()
+    wb.save(buf)
+    assert _upload(client, owner, buf.getvalue()).status_code == 422
+
+
+def test_newest_first_download_and_raw_kept(client, owner):
+    wb_rows = icici_xlsx(ROWS)
+    from openpyxl import load_workbook
+    wb = load_workbook(io.BytesIO(wb_rows))
+    ws = wb.active
+    body = [list(r) for r in ws.iter_rows(min_row=7, max_row=12, values_only=True)]
+    for i, r in enumerate(reversed(body)):
+        for j, v in enumerate(r, 1):
+            ws.cell(7 + i, j, v)
+    buf = io.BytesIO()
+    wb.save(buf)
+    rows = read_statement(buf.getvalue(), "x.xlsx")
+    assert [r.txn_date.day for r in rows] == [3, 5, 7, 10, 12, 14] and all(r.verified for r in rows)
+    r = _upload(client, owner, buf.getvalue()).json()
+    assert r["verified"] and r["added"] == 6
+    t = client.get("/bank/txns", headers=owner).json()[0]
+    assert "ramesh.mason@ybl" in t["raw_line"] and t["verified"]
+
+
+def test_amount_alone_never_auto_links(client, owner):
+    p, _ = setup_project(client, owner)
+    ramesh = payee(client, owner)
+    # Recorded by hand without a transaction id; the bank line has the same amount and date.
+    client.post("/expenses", json={"payee_id": ramesh["id"], "amount_paise": 5_000_00, "mode": "upi", "paid_on": "2026-11-05"}, headers=owner)
+    r = _upload(client, owner, icici_xlsx(ROWS)).json()
+    assert r["matched"] == 0
+    line = next(t for t in client.get("/bank/txns", headers=owner).json() if t["ref"] == "431199887766")
+    cands = client.get(f"/bank/txns/{line['id']}/candidates", headers=owner).json()
+    assert len(cands) == 1  # offered, owner taps to confirm
+    done = client.post(f"/bank/txns/{line['id']}/link", json={"expense_id": cands[0]["id"]}, headers=owner).json()
+    assert done["status"] == "done" and done["amount_paise"] == 5_000_00
+
+
+def test_voided_entry_puts_bank_line_back(client, owner):
+    p, _ = setup_project(client, owner)
+    _upload(client, owner, icici_xlsx(ROWS))
+    line = next(t for t in client.get("/bank/txns", headers=owner).json() if t["ref"] == "431199887766")
+    done = client.post(f"/bank/txns/{line['id']}/expense", json={"new_payee": {"name": "Ramesh", "type": "labour"}, "category": "labour"}, headers=owner).json()
+    client.post(f"/expenses/{done['linked']['id']}/void", headers=owner)
+    again = client.get(f"/bank/txns/{line['id']}", headers=owner).json()
+    assert again["status"] == "to_explain" and again["linked"] is None
+
+
+def test_gap_between_uploads_is_flagged(client, owner):
+    _upload(client, owner, icici_xlsx(ROWS[:2]))
+    # Next upload starts from a balance that doesn't follow on: the lines in between were never uploaded.
+    later = icici_xlsx([("25/11/2026", "UPI/431900000001/x/b@ybl", 1_000, 0), ("26/11/2026", "UPI/431900000002/y/b@ybl", 1_000, 0)])
+    from openpyxl import load_workbook
+    wb = load_workbook(io.BytesIO(later))
+    wb.active["I7"], wb.active["I8"] = "5,00,000.00", "4,99,000.00"
+    buf = io.BytesIO()
+    wb.save(buf)
+    assert _upload(client, owner, buf.getvalue()).status_code == 200
+    s = client.get("/bank/summary", headers=owner).json()
+    assert s["gaps"] == [["2026-11-05", "2026-11-25"]]
+    assert "bank_gap" in {n["kind"] for n in client.get("/notifications", headers=owner).json()}

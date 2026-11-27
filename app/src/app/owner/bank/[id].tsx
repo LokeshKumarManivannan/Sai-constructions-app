@@ -56,6 +56,8 @@ export default function ExplainBankLine() {
         {x.counterparty && <Text style={{ fontSize: font.body, fontWeight: '700' }}>{x.counterparty}</Text>}
         <Muted>{x.narration}</Muted>
         {x.ref && <Muted>{`${t('books.txnId')}: ${x.ref}`}</Muted>}
+        {x.balance_paise != null && <Muted>{`${t('bank.balanceAfter')}: ${formatINR(x.balance_paise)}`}</Muted>}
+        <Muted>{x.verified ? t('bank.lineVerified') : t('bank.lineNotVerified')}</Muted>
         {x.status !== 'to_explain' && (
           <StatusChip tone={x.status === 'done' ? 'good' : 'neutral'} label={x.linked?.label ?? t(`bank.tab_${x.status}`)} />
         )}

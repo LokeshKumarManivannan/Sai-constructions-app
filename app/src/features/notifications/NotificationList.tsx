@@ -29,6 +29,7 @@ const LOOK: Record<Notification['kind'], { icon: Icon; color: string; tab: Tab }
   supervisor_spent: { icon: 'wallet', color: colors.brand, tab: 'expenses' },
   bank_to_explain: { icon: 'business', color: colors.warn, tab: 'bank' },
   bank_statement_due: { icon: 'cloud-upload', color: colors.warn, tab: 'bank' },
+  bank_gap: { icon: 'alert-circle', color: colors.bad, tab: 'bank' },
 };
 
 function target(viewer: Viewer, n: Notification): Href {
@@ -52,8 +53,9 @@ export function NotificationList({ viewer }: { viewer: Viewer }) {
   const text = (n: Notification) =>
     t(`notify.${n.kind}${n.status ? `_${n.status}` : ''}${viewer === 'owner' && n.kind === 'photos' ? '_owner' : ''}`, {
       amount: n.amount_paise != null ? formatINR(n.amount_paise) : '',
-      name: n.kind === 'photos' && n.name ? t(`trade.${n.name}`) : n.name ?? '',
+      name: n.kind === 'photos' && n.name ? t(`trade.${n.name}`) : n.kind === 'bank_gap' ? '' : n.name ?? '',
       date: n.due_date ? showDate(n.due_date) : '',
+      from: n.kind === 'bank_gap' && n.name ? showDate(n.name) : '',
       by: n.by ?? '',
       count: n.count ?? 0,
     });

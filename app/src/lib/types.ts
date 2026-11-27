@@ -308,6 +308,9 @@ export interface BankTxn {
   amount_paise: number;
   direction: 'debit' | 'credit';
   narration: string;
+  raw_line: string;
+  balance_paise: number | null;
+  verified: boolean;
   ref: string | null;
   counterparty: string | null;
   source: 'statement' | 'sms';
@@ -333,6 +336,7 @@ export interface BankSummary {
   month_explained: number;
   last_statement_date: string | null;
   statement_due: boolean;
+  gaps: [string, string][];
 }
 
 export interface BankImport {
@@ -343,4 +347,5 @@ export interface BankImport {
   to_explain: number;
   first_date: string | null;
   last_date: string | null;
+  verified: boolean;
 }

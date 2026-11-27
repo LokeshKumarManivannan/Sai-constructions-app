@@ -40,7 +40,7 @@ class NotificationOut(BaseModel):
     id: str
     # customer: payment_due | extra_work | check_payment | payment_confirmed | photos | document
     # owner: confirm_payment | disputed | overdue | untagged | extra_decided | photos | supervisor_spent
-    #        | bank_to_explain | bank_statement_due
+    #        | bank_to_explain | bank_statement_due | bank_gap
     kind: str
     action: bool
     project_id: str | None = None
@@ -147,6 +147,9 @@ def _owner(db: Session, user: User, since: datetime) -> list[NotificationOut]:
     now = datetime.now(UTC)
     if b.to_explain:
         out.append(NotificationOut(id="bank", kind="bank_to_explain", action=True, at=now, count=b.to_explain))
+    for i, (before, after) in enumerate(b.gaps):
+        out.append(NotificationOut(id=f"bank-gap-{i}", kind="bank_gap", action=True, at=now,
+                                   name=before.isoformat(), due_date=after.isoformat()))
     if b.statement_due:
         out.append(NotificationOut(id="bank-stmt", kind="bank_statement_due", action=True, at=now,
                                    due_date=b.last_statement_date.isoformat() if b.last_statement_date else None))
