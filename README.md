@@ -20,7 +20,10 @@ app/       Expo (React Native + TypeScript) (Android, iOS and web from one codeb
 | 4 | Progress photos by trade (supervisor upload, customer timeline) | Done |
 | 5 | Internal books: payments out, untagged queue, cash book, petty cash, site profit | Done |
 | 6 | Document vault (versions, visibility), handover checklist and customer sign-off | Done |
-| Later | Push/WhatsApp notifications, real SMS OTP, quote builder, eSign, bank SMS capture, voice assistant, warranty terms, date picker, store release, hosting | |
+| 7 | Brand (Chettinad arch logo), owner menu, Money received / Money paid, Excel and bill-ZIP downloads | Done |
+| 8 | Customer stage tracker and work-done %, in-app notifications (owner and customer), contract + extra work total | Done |
+| Next | Bank inbox: ICICI statement upload, matching, payee memory, site codes, monthly reminder, Android SMS capture | Planned: [docs/ROADMAP.md](docs/ROADMAP.md) |
+| Later | Phone push/WhatsApp, labour payment acknowledgements, real SMS OTP, quote builder, eSign, voice assistant, warranty terms, store release | |
 
 ## Run locally
 
