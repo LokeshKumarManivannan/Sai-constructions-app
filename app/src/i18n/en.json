@@ -422,5 +422,19 @@
     "yearBills": "All bill photos for the year (ZIP)",
     "note": "Excel files list money received and money paid out with dates, modes and transaction IDs. Each bill photo has the same name in the Excel file and in the ZIP.",
     "preparing": "Preparing…"
+  },
+  "stage": {
+    "title": "Where we are",
+    "quote": "Quote issued",
+    "contract_signed": "Contract signed",
+    "in_progress": "Work in progress",
+    "handed_over": "Handed over",
+    "quoteNow": "Waiting for you to sign the contract.",
+    "contract_signedNow": "Work will start soon.",
+    "in_progressNow": "Your house is being built. See the Progress tab for photos.",
+    "handed_overNow": "Keys and documents handed over.",
+    "seeQuote": "See the quote",
+    "workDone": "Work done",
+    "stagesDone": "{{done}} of {{total}} stages finished"
   }
 }

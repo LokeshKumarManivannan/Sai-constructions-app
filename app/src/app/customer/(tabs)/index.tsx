@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
 import { useMyProject } from '@/features/customer/useMyProject';
+import { StageTracker } from '@/features/customer/StageTracker';
 import { ChangeOrderList } from '@/features/changeOrders/ChangeOrderList';
 import { PaymentList } from '@/features/payments/PaymentList';
 import { SummaryCard } from '@/features/payments/SummaryCard';
@@ -41,9 +42,11 @@ export default function CustomerMoney() {
           <Muted>{t('customer.contractValue')}</Muted>
           <Text style={{ fontSize: font.big, fontWeight: '800' }}>{formatINR(project.contract_value_paise)}</Text>
           <Muted>{t('customer.planAfterAgreement')}</Muted>
+          <BigButton label={t('stage.seeQuote')} icon="document-text" variant="secondary" onPress={() => router.push('/customer/documents')} />
         </Card>
       )}
       {summary.data && <SummaryCard s={summary.data} project={project} />}
+      <StageTracker project={project} />
       {signed && (
         <BigButton
           label={t('payments.logCustomer')}
