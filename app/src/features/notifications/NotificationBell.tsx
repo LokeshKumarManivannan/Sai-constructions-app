@@ -7,12 +7,12 @@ import { Text } from '@/ui/Text';
 import { colors } from '@/ui/theme';
 import { useNotifications } from './useNotifications';
 
-/** Header bell with a count of unread notifications (customers only). */
-export function NotificationBell() {
+/** Header bell with a count of unread notifications. */
+export function NotificationBell({ viewer }: { viewer: 'customer' | 'owner' }) {
   const { t } = useTranslation();
   const { unread } = useNotifications();
   return (
-    <Pressable accessibilityRole="button" accessibilityLabel={t('notify.title')} onPress={() => router.push('/customer/notifications')} hitSlop={10}>
+    <Pressable accessibilityRole="button" accessibilityLabel={t('notify.title')} onPress={() => router.push(`/${viewer}/notifications`)} hitSlop={10}>
       <Ionicons name={unread ? 'notifications' : 'notifications-outline'} size={25} color={colors.brandText} />
       {unread > 0 && (
         <View

@@ -21,9 +21,9 @@ type Tab = (typeof TABS)[number];
 
 export default function OwnerProject() {
   const { t } = useTranslation();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, tab: startTab } = useLocalSearchParams<{ id: string; tab?: Tab }>();
   const { data: project, error, reload } = useApi<Project>(`/projects/${id}`);
-  const [tab, setTab] = useState<Tab>('overview');
+  const [tab, setTab] = useState<Tab>(startTab && (TABS as readonly string[]).includes(startTab) ? startTab : 'overview');
 
   if (!project) return error ? <ErrorText>{error}</ErrorText> : <Loading />;
 

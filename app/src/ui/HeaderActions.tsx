@@ -20,7 +20,7 @@ export function HeaderActions() {
       >
         <Text style={{ fontWeight: '600', color: colors.brandText, fontSize: 15 }}>{t('common.language')}</Text>
       </Pressable>
-      {user?.role === 'customer' && <NotificationBell />}
+      {(user?.role === 'customer' || user?.role === 'owner') && <NotificationBell viewer={user.role} />}
       {user && (
         <Pressable accessibilityRole="button" accessibilityLabel={t('common.logout')} onPress={signOut} hitSlop={10}>
           <Ionicons name="log-out-outline" size={25} color={colors.brandText} />

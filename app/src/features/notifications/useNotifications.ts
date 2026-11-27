@@ -7,14 +7,29 @@ import { useApi } from '@/lib/useApi';
 
 export type Notification = {
   id: string;
-  kind: 'payment_due' | 'extra_work' | 'check_payment' | 'payment_confirmed' | 'photos' | 'document';
+  kind:
+    | 'payment_due'
+    | 'extra_work'
+    | 'check_payment'
+    | 'payment_confirmed'
+    | 'photos'
+    | 'document'
+    | 'confirm_payment'
+    | 'disputed'
+    | 'overdue'
+    | 'untagged'
+    | 'extra_decided'
+    | 'supervisor_spent';
   action: boolean;
-  project_id: string;
-  project_name: string;
+  project_id: string | null;
+  project_name: string | null;
   at: string;
   amount_paise: number | null;
   name: string | null;
   due_date: string | null;
+  status: string | null;
+  by: string | null;
+  count: number | null;
 };
 
 const KEY = 'sai.notifications.seen';

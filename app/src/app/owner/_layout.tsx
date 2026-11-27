@@ -27,6 +27,7 @@ export default function OwnerLayout() {
         />
         <Stack.Screen name="menu" options={{ title: t('menu.title') }} />
         <Stack.Screen name="downloads" options={{ title: t('menu.downloads') }} />
+        <Stack.Screen name="notifications" options={{ title: t('notify.title') }} />
         <Stack.Screen name="customers/index" options={{ title: t('owner.customers') }} />
         <Stack.Screen name="customers/[id]" options={{ title: t('owner.customers') }} />
         <Stack.Screen name="projects/new" options={{ title: t('owner.newProject') }} />

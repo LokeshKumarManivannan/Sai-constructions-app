@@ -431,6 +431,15 @@
     "check_payment": "Sai Constructions recorded a payment of {{amount}}. Please check it.",
     "payment_confirmed": "Your payment of {{amount}} is confirmed.",
     "photos": "New {{name}} work photos added.",
-    "document": "New document added: {{name}}."
+    "document": "New document added: {{name}}.",
+    "confirm_payment": "{{by}} says they paid {{amount}}. Please confirm.",
+    "disputed": "Customer says the payment of {{amount}} is wrong. Please check.",
+    "overdue": "Overdue: {{amount}} for {{name}} was due on {{date}}.",
+    "extra_decided_approved": "Customer approved extra work: {{name}}, {{amount}}.",
+    "extra_decided_rejected": "Customer rejected extra work: {{name}}.",
+    "supervisor_spent": "{{by}} spent {{amount}} from petty cash. {{name}}",
+    "photos_owner": "{{by}} added {{name}} work photos.",
+    "untagged_one": "1 payment needs a reason or bill photo.",
+    "untagged_other": "{{count}} payments need a reason or bill photo."
   }
 }
