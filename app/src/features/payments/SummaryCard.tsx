@@ -20,6 +20,9 @@ export function SummaryCard({ s, project, showCash = false }: { s: Summary; proj
   const paidShare = s.total_due_paise > 0 ? Math.min(s.paid_paise / s.total_due_paise, 1) : 0;
   const spoken = [
     `${t('payments.total')} ${formatINR(s.total_due_paise)}`,
+    ...(s.approved_extras_paise > 0
+      ? [t('payments.breakdown', { contract: formatINR(s.contract_value_paise), extras: formatINR(s.approved_extras_paise) })]
+      : []),
     `${t('payments.paid')} ${formatINR(s.paid_paise)}`,
     `${t('payments.outstanding')} ${formatINR(s.outstanding_paise)}`,
     nd ? `${t('payments.nextPayment')} ${formatINR(nd.amount_paise)} ${t('payments.for')} ${nd.name}` : t('payments.noneDue'),
@@ -50,8 +53,8 @@ export function SummaryCard({ s, project, showCash = false }: { s: Summary; proj
           {formatINR(s.total_due_paise)}
         </Text>
         {s.approved_extras_paise > 0 && (
-          <Text style={{ color: colors.accent, fontSize: font.small }}>
-            {t('payments.extras')}: {formatINR(s.approved_extras_paise)}
+          <Text style={{ color: colors.accent, fontSize: font.body, fontWeight: '700' }}>
+            {t('payments.breakdown', { contract: formatINR(s.contract_value_paise), extras: formatINR(s.approved_extras_paise) })}
           </Text>
         )}
 

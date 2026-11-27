@@ -174,7 +174,8 @@
     "markDue": "பணம் கேள்",
     "dueDate": "செலுத்த வேண்டிய தேதி (DD/MM/YYYY, விருப்பம்)",
     "undo": "திரும்பப் பெறு",
-    "datePaid": "செலுத்திய தேதி"
+    "datePaid": "செலுத்திய தேதி",
+    "breakdown": "{{contract}} ஒப்பந்தம் + {{extras}} கூடுதல் வேலை"
   },
   "mode": {
     "upi": "UPI",
