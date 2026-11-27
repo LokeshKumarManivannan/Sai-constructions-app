@@ -442,6 +442,7 @@
     "photos_owner": "{{by}} added {{name}} work photos.",
     "untagged_one": "1 payment needs a reason or bill photo.",
     "untagged_other": "{{count}} payments need a reason or bill photo."
+  },
   "stage": {
     "title": "Where we are",
     "quote": "Quote issued",
