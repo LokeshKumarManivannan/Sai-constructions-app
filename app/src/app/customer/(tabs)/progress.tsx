@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
 import { useMyProject } from '@/features/customer/useMyProject';
-import { ProgressMeter } from '@/features/customer/StageTracker';
+import { TradeBoard } from '@/features/progress/TradeBoard';
 import { ProgressTimeline } from '@/features/progress/ProgressTimeline';
 import { ErrorText, Loading, Muted, Screen } from '@/ui/components';
 
@@ -14,7 +14,7 @@ export default function CustomerProgress() {
     <Screen>
       {project.status === 'quote' ? <Muted>{t('customer.progressSoon')}</Muted> : (
         <>
-          <ProgressMeter project={project} />
+          <TradeBoard projectId={project.id} />
           <ProgressTimeline projectId={project.id} />
         </>
       )}

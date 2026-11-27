@@ -7,7 +7,7 @@ from app.models.files import StoredFile
 from app.models.payments import CustomerPayment, PaymentMode, PaymentStatus
 from app.models.common import Language, MilestoneStatus, ProjectStatus, Role, Trade
 from app.models.invites import Invite, InviteStatus
-from app.models.progress import ProgressUpdate
+from app.models.progress import ProgressUpdate, TradeState, TradeStatus
 from app.models.projects import Customer, Milestone, Project, ProjectCustomer, SupervisorAssignment
 from app.models.users import OtpCode, User
 
@@ -44,6 +44,8 @@ __all__ = [
     "Project",
     "ProjectCustomer",
     "ProgressUpdate",
+    "TradeState",
+    "TradeStatus",
     "ProjectStatus",
     "Role",
     "StoredFile",

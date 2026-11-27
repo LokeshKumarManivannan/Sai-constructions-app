@@ -445,7 +445,9 @@
     "bank_to_explain_one": "1 bank entry needs explaining: who, which site, what for.",
     "bank_to_explain_other": "{{count}} bank entries need explaining: who, which site, what for.",
     "bank_statement_due": "Upload last month's ICICI bank statement.",
-    "bank_gap": "Bank statement missing between {{from}} and {{date}}: some transactions are not in the app yet."
+    "bank_gap": "Bank statement missing between {{from}} and {{date}}: some transactions are not in the app yet.",
+    "trade_ongoing": "{{name}} work has started.",
+    "trade_done": "{{name}} work is finished."
   },
   "stage": {
     "title": "Where we are",
@@ -507,5 +509,12 @@
     "balanceAfter": "Balance after",
     "lineVerified": "✓ Matches the bank's running balance",
     "lineNotVerified": "Not cross-checked (no balance in the file)"
+  },
+  "work": {
+    "title": "Work at site",
+    "not_started": "Not started",
+    "ongoing": "Going on",
+    "done": "Done",
+    "since": "Since {{date}}"
   }
 }
