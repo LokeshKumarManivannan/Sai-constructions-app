@@ -3,7 +3,7 @@
 import uuid
 from datetime import UTC, datetime, timedelta
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
@@ -37,7 +37,7 @@ from app.schemas.bank import (
 from app.schemas.books import ExpenseIn
 from app.schemas.payments import PaymentIn
 from app.services import audit, bank
-from app.services.bank_statement import StatementError, read_statement
+from app.services.bank_statement import PasswordNeeded, StatementError, read_statement
 from app.services.time import today_ist
 
 router = APIRouter(tags=["bank"])
@@ -102,16 +102,23 @@ def _done(db: Session, owner: User, t: BankTxn, action: str) -> BankTxnOut:
 
 
 @router.post("/bank/import", response_model=ImportOut)
-async def import_statement(file: UploadFile = File(...), db: Session = Depends(get_db), owner: User = Depends(require_owner)):
+async def import_statement(
+    file: UploadFile = File(...),
+    password: str | None = Form(None),  # for locked PDFs
+    db: Session = Depends(get_db),
+    owner: User = Depends(require_owner),
+):
     data = await file.read()
     if len(data) > settings.max_upload_mb * 1024 * 1024:
         raise HTTPException(status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, f"file is larger than {settings.max_upload_mb} MB")
     try:
-        rows = read_statement(data, file.filename or "")
+        rows = read_statement(data, file.filename or "", password)
+    except PasswordNeeded as e:
+        raise HTTPException(status.HTTP_423_LOCKED, str(e)) from None
     except StatementError as e:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, str(e)) from None
     except Exception:  # unreadable/corrupt workbook
-        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "Could not read this file. Download it again from net banking as Excel.") from None
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "Could not read this file. Download it again from net banking (Excel or PDF).") from None
     r = bank.import_rows(db, rows)
     audit.record(db, owner, "import", "bank_statement", None, after={"file": file.filename, **{k: str(v) for k, v in r.__dict__.items()}})
     db.commit()

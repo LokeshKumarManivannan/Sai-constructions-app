@@ -121,3 +121,60 @@ def test_bank_rules(client, owner):
     ramesh = payee(client, owner)
     g = client.post(f"/bank/txns/{t['id']}/expense", json={"payee_id": ramesh["id"], "category": "other"}, headers=owner).json()
     assert g["linked"]["label"].endswith("General")
+
+
+# ---------- PDF statements ----------
+
+def icici_pdf(rows: list[tuple], password: str | None = None, ruled: bool = True) -> bytes:
+    """ICICI e-statement style: DATE | MODE | PARTICULARS | DEPOSITS | WITHDRAWALS | BALANCE.
+    Long remarks wrap onto a second table row; the table continues onto page 2 without a header."""
+    import pytest
+
+    rl = pytest.importorskip("reportlab")  # noqa: F841  (test-only dependency)
+    from reportlab.lib import colors
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.pdfencrypt import StandardEncryption
+    from reportlab.platypus import PageBreak, Paragraph, SimpleDocTemplate, Table, TableStyle
+    from reportlab.lib.styles import getSampleStyleSheet
+
+    buf = io.BytesIO()
+    enc = StandardEncryption(password, canPrint=1) if password else None
+    doc = SimpleDocTemplate(buf, pagesize=A4, encrypt=enc)
+    style = getSampleStyleSheet()["Normal"]
+    head = [["DATE", "MODE**", "PARTICULARS", "DEPOSITS", "WITHDRAWALS", "BALANCE"]]
+    body, bal = [], 10_00_000.0
+    body.append(["", "", "B/F", "", "", f"{bal:,.2f}"])
+    for d, remarks, wd, dep in rows:
+        bal = bal - wd + dep
+        first, rest = remarks[:34], remarks[34:]
+        body.append([d, "", first, f"{dep:,.2f}" if dep else "", f"{wd:,.2f}" if wd else "", f"{bal:,.2f}"])
+        if rest:
+            body.append(["", "", rest, "", "", ""])
+    ts = TableStyle([("GRID", (0, 0), (-1, -1), 0.5, colors.grey)] if ruled else [])
+    half = len(body) // 2
+    story = [Paragraph("Statement of Transactions in Savings Account Number: XXXXXXXX1234", style),
+             Table(head + body[:half], style=ts), PageBreak(), Table(body[half:], style=ts)]
+    doc.build(story)
+    return buf.getvalue()
+
+
+def test_pdf_table_and_wrapped_remarks():
+    rows = read_statement(icici_pdf(ROWS), "Statement.pdf")
+    assert len(rows) == 6
+    assert rows[1].debit_paise == 5_000_00 and "ramesh.mason@ybl" in rows[1].narration  # wrapped part joined
+    assert rows[3].credit_paise == 2_00_000_00 and rows[3].txn_date == date(2026, 11, 10)
+    assert parse_narration(rows[1].narration).ref == "431199887766"
+
+
+def test_pdf_without_table_lines_uses_balance():
+    rows = read_statement(icici_pdf(ROWS, ruled=False), "Statement.pdf")
+    assert [r.debit_paise // 100 for r in rows] == [18_000, 5_000, 10_000, 0, 2_350, 6_000]
+    assert rows[3].credit_paise == 2_00_000_00
+
+
+def test_locked_pdf(client, owner):
+    data = icici_pdf(ROWS, password="01011960")
+    r = client.post("/bank/import", files={"file": ("Statement.pdf", data, "application/pdf")}, headers=owner)
+    assert r.status_code == 423
+    r = client.post("/bank/import", files={"file": ("Statement.pdf", data, "application/pdf")}, data={"password": "01011960"}, headers=owner)
+    assert r.status_code == 200 and r.json()["added"] == 6

@@ -464,7 +464,7 @@
     "title": "Bank statement",
     "explain": "Explain bank entry",
     "upload": "Upload bank statement",
-    "uploadHelp": "ICICI net banking → Accounts → Account statement → last month → download as Excel (XLS). Uploading the same month twice is safe.",
+    "uploadHelp": "ICICI net banking → Bank Accounts → View Detailed Statement → last month → download as Excel or PDF. The monthly email PDF works too. Uploading the same month twice is safe.",
     "toExplainN_one": "1 bank entry to explain",
     "toExplainN_other": "{{count}} bank entries to explain",
     "allExplained": "Every bank entry is explained ✓",
@@ -494,6 +494,11 @@
     "reopen": "Undo, explain again",
     "siteCode": "Site code for UPI notes",
     "siteCodeHelp": "When paying by UPI for this site, type {{code}} in the note (for example \"{{code}} cement\"). The bank statement then files it here automatically.",
-    "changeCode": "Change code"
+    "changeCode": "Change code",
+    "locked": "{{name}} is locked with a password.",
+    "pdfPassword": "PDF password (ICICI: usually date of birth, DDMMYYYY)",
+    "unlock": "Open and read",
+    "wrongPassword": "That password did not open the PDF. Try again.",
+    "firstUpload": "Upload your first bank statement"
   }
 }

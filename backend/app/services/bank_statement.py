@@ -13,8 +13,10 @@ from datetime import date, datetime, timedelta
 from decimal import Decimal, InvalidOperation
 from html.parser import HTMLParser
 
+import pdfplumber
 import xlrd
 from openpyxl import load_workbook
+from pdfminer.pdfdocument import PDFPasswordIncorrect
 
 
 @dataclass
@@ -29,6 +31,10 @@ class Row:
 
 class StatementError(ValueError):
     pass
+
+
+class PasswordNeeded(StatementError):
+    """The PDF is locked; ask for the password (ICICI: usually date of birth as DDMMYYYY)."""
 
 
 # ---------- file -> grid of cells ----------
@@ -57,6 +63,85 @@ class _Tables(HTMLParser):
     def handle_data(self, data):
         if self._cell is not None:
             self._cell.append(data)
+
+
+_DATE_START = re.compile(r"^\s*(\d{1,2}[/\-. ](\d{1,2}|[A-Za-z]{3})[/\-. ,]+\d{2,4})\b")
+_AMOUNT = re.compile(r"(?<![\w/])-?\d{1,3}(?:,\d{2,3})*(?:\.\d{2})(?![\w/])|(?<![\w/,])-?\d+\.\d{2}(?![\w/])")
+
+
+def _open_pdf(data: bytes, password: str | None):
+    try:
+        return pdfplumber.open(io.BytesIO(data), password=password or "")
+    except PDFPasswordIncorrect:
+        raise PasswordNeeded("This PDF is locked. Enter its password (for ICICI, usually the date of birth as DDMMYYYY).") from None
+    except Exception as e:  # pdfminer raises several types for locked files
+        if "password" in str(e).lower() or "encrypt" in str(e).lower():
+            raise PasswordNeeded("This PDF is locked. Enter its password (for ICICI, usually the date of birth as DDMMYYYY).") from None
+        raise
+
+
+def _join_wrapped(prev: str, extra: str) -> str:
+    """Bank remarks like "UPI/4311.../ramesh.mason@ybl" have no spaces, so a PDF wraps them mid-word:
+    glue those back without a space; ordinary words get a space."""
+    prev, extra = prev.rstrip(), extra.strip()
+    last = prev.split(" ")[-1] if prev else ""
+    glue = ("/" in last or "@" in last or len(last) > 20) and not prev.endswith((" ", "-"))
+    return f"{prev}{'' if glue else ' '}{extra}".strip()
+
+
+def _pdf_grid(data: bytes, password: str | None) -> list[list]:
+    """Every table row on every page, top to bottom. Pages after the first usually repeat no header,
+    so the rows simply continue under the header found on page 1."""
+    rows: list[list] = []
+    with _open_pdf(data, password) as pdf:
+        for page in pdf.pages:
+            tables = page.extract_tables() or page.extract_tables({"vertical_strategy": "text", "horizontal_strategy": "text"})
+            for tbl in tables:
+                rows.extend([[" ".join(str(c or "").split()) for c in r] for r in tbl])
+    return rows
+
+
+def _pdf_lines(data: bytes, password: str | None) -> list[Row]:
+    """Fallback for PDFs without a readable table: one transaction per line that starts with a date.
+    In/out comes from the running balance (balance went down = money out)."""
+    out: list[Row] = []
+    prev_bal: int | None = None
+    current: dict | None = None
+
+    def flush():
+        nonlocal prev_bal, current
+        if current is None:
+            return
+        amounts = current["amounts"]
+        if len(amounts) >= 2:
+            amount, bal = abs(amounts[-2]), amounts[-1]
+            if prev_bal is not None:
+                debit = bal < prev_bal
+            else:
+                debit = bool(re.search(r"\b(DR|WDL|DEBIT|TO)\b", current["text"].upper()))
+            out.append(Row(current["date"], amount if debit else 0, 0 if debit else amount, current["text"].strip(), bal, None))
+            prev_bal = bal
+        elif len(amounts) == 1 and re.search(r"opening|b/f|brought", current["text"], re.I):
+            prev_bal = amounts[0]
+        current = None
+
+    with _open_pdf(data, password) as pdf:
+        for page in pdf.pages:
+            for line in (page.extract_text() or "").splitlines():
+                m = _DATE_START.match(line)
+                if m and parse_date(m.group(1)):
+                    flush()
+                    rest = line[m.end():]
+                    nums = [parse_paise(a) for a in _AMOUNT.findall(rest)]
+                    current = {"date": parse_date(m.group(1)), "text": _AMOUNT.sub(" ", rest), "amounts": nums}
+                elif current is not None and not _AMOUNT.search(line) and len(line) < 120:
+                    current["text"] = _join_wrapped(current["text"], line)  # wrapped remarks
+                else:
+                    flush()
+                    if re.search(r"opening balance|\bb/f\b|brought forward", line, re.I) and _AMOUNT.search(line):
+                        prev_bal = parse_paise(_AMOUNT.findall(line)[-1])
+        flush()
+    return out
 
 
 def _grid(data: bytes, filename: str) -> list[list]:
@@ -166,14 +251,28 @@ def parse_paise(v) -> int:
         return 0
 
 
-def read_statement(data: bytes, filename: str) -> list[Row]:
-    grid = _grid(data, filename)
-    hdr, cols = _find_columns(grid)
+def read_statement(data: bytes, filename: str, password: str | None = None) -> list[Row]:
+    if data[:5] == b"%PDF-" or filename.lower().endswith(".pdf"):
+        grid = _pdf_grid(data, password)
+        try:
+            hdr, cols = _find_columns(grid)
+        except StatementError:
+            rows = _pdf_lines(data, password)
+            if not rows:
+                raise StatementError("Could not read the transactions in this PDF. Try the Excel download from net banking.") from None
+            return rows
+    else:
+        grid = _grid(data, filename)
+        hdr, cols = _find_columns(grid)
     rows: list[Row] = []
     for raw in grid[hdr + 1 :]:
         cell = lambda k: raw[cols[k]] if k in cols and cols[k] < len(raw) else None  # noqa: E731
         d = parse_date(cell("date"))
         if d is None:
+            # A remark that wrapped onto the next table row (PDFs): add it to the previous transaction.
+            extra = " ".join(str(cell("narration") or "").split())
+            if rows and extra and not parse_paise(cell("debit")) and not parse_paise(cell("credit")):
+                rows[-1].narration = _join_wrapped(rows[-1].narration, extra)
             continue  # blank lines, page breaks, footer totals
         debit, credit = abs(parse_paise(cell("debit"))), abs(parse_paise(cell("credit")))
         if debit == 0 and credit == 0:
