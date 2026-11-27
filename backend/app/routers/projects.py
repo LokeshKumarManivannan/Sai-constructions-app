@@ -10,6 +10,7 @@ from app.models import Customer, Milestone, MilestoneStatus, Project, Role, User
 from app.routers.customers import phone_or_none
 from app.schemas import ProjectIn, ProjectOut, ProjectSiteOut, ProjectUpdate, ProjectWithCustomerIn
 from app.services import audit
+from app.services.bank import ensure_site_codes
 from app.services.access import get_project_for, supervisor_trades, visible_projects_query
 
 router = APIRouter(prefix="/projects", tags=["projects"])
@@ -54,6 +55,7 @@ def create_project(body: ProjectIn, db: Session = Depends(get_db), user: User = 
     p = Project(**body.model_dump(), created_by=user.id)
     db.add(p)
     db.flush()
+    ensure_site_codes(db)
     audit.record(db, user, "create", "project", p.id, after=audit.snapshot(p))
     db.commit()
     return _out(db, user, p)
@@ -83,6 +85,7 @@ def create_project_with_customer(
     p = Project(customer_id=customer.id, **body.project.model_dump(), created_by=user.id)
     db.add(p)
     db.flush()
+    ensure_site_codes(db)
     audit.record(db, user, "create", "project", p.id, after=audit.snapshot(p))
     db.commit()
     return _out(db, user, p)
@@ -99,8 +102,13 @@ def update_project(
 ):
     p = get_project_for(db, user, project_id)
     before = audit.snapshot(p)
+    if body.site_code is not None:
+        body.site_code = body.site_code.upper()
+        taken = db.scalar(select(Project.id).where(Project.site_code == body.site_code, Project.id != p.id))
+        if taken:
+            raise HTTPException(status.HTTP_409_CONFLICT, f"site code {body.site_code} is already used by another project")
     for field, value in body.model_dump(exclude_unset=True).items():
-        if value is None and field in ("name", "status", "contract_value_paise", "site_address"):
+        if value is None and field in ("name", "status", "contract_value_paise", "site_address", "site_code"):
             continue  # required columns: ignore explicit nulls
         setattr(p, field, value)
     audit.record(db, user, "update", "project", p.id, before=before, after=audit.snapshot(p))

@@ -19,7 +19,9 @@ export type Notification = {
     | 'overdue'
     | 'untagged'
     | 'extra_decided'
-    | 'supervisor_spent';
+    | 'supervisor_spent'
+    | 'bank_to_explain'
+    | 'bank_statement_due';
   action: boolean;
   project_id: string | null;
   project_name: string | null;

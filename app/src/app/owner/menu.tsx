@@ -19,6 +19,7 @@ export default function OwnerMenu() {
       { icon: 'people', label: t('menu.supervisors'), href: '/owner/supervisors' },
     ],
     [
+      { icon: 'business', label: t('bank.title'), href: '/owner/bank' },
       { icon: 'arrow-down-circle', label: t('books.moneyIn'), href: '/owner/payment' },
       { icon: 'arrow-up-circle', label: t('books.paySomeone'), href: '/owner/pay-out' },
       { icon: 'list', label: t('menu.allPayments'), href: '/owner/books' },

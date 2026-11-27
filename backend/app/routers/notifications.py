@@ -40,6 +40,7 @@ class NotificationOut(BaseModel):
     id: str
     # customer: payment_due | extra_work | check_payment | payment_confirmed | photos | document
     # owner: confirm_payment | disputed | overdue | untagged | extra_decided | photos | supervisor_spent
+    #        | bank_to_explain | bank_statement_due
     kind: str
     action: bool
     project_id: str | None = None
@@ -139,4 +140,14 @@ def _owner(db: Session, user: User, since: datetime) -> list[NotificationOut]:
     missing = [e for e in active if not books.is_tagged(e)]
     if missing:
         out.append(NotificationOut(id="untagged", kind="untagged", action=True, at=max(e.created_at for e in missing), count=len(missing)))
+
+    from app.routers.bank import bank_summary  # local import: bank router imports books/payments routers
+
+    b = bank_summary(db)
+    now = datetime.now(UTC)
+    if b.to_explain:
+        out.append(NotificationOut(id="bank", kind="bank_to_explain", action=True, at=now, count=b.to_explain))
+    if b.statement_due:
+        out.append(NotificationOut(id="bank-stmt", kind="bank_statement_due", action=True, at=now,
+                                   due_date=b.last_statement_date.isoformat() if b.last_statement_date else None))
     return out

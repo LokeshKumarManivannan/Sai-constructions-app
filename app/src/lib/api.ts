@@ -43,18 +43,22 @@ export async function api<T>(path: string, options: { method?: string; body?: un
   return res.json() as Promise<T>;
 }
 
+type LocalFile = { uri: string; name: string; type: string; webFile?: Blob };
+
 /** Multipart upload of one picked file to POST /files. Returns { id, url }. */
-export async function uploadFile(
-  projectId: string | null,
-  file: { uri: string; name: string; type: string; webFile?: Blob },
-): Promise<{ id: string; url: string }> {
+export async function uploadFile(projectId: string | null, file: LocalFile): Promise<{ id: string; url: string }> {
+  return postFile('/files', file, projectId ? { project_id: projectId } : {});
+}
+
+/** Multipart POST of one file (field "file") plus optional form fields. */
+export async function postFile<T>(path: string, file: LocalFile, fields: Record<string, string> = {}): Promise<T> {
   const token = await getToken();
   const form = new FormData();
-  if (projectId) form.append('project_id', projectId);
+  for (const [k, v] of Object.entries(fields)) form.append(k, v);
   if (file.webFile) form.append('file', file.webFile, file.name);
   // React Native's FormData accepts { uri, name, type } objects for files.
   else form.append('file', { uri: file.uri, name: file.name, type: file.type } as unknown as Blob);
-  const res = await fetch(`${API_URL}/files`, {
+  const res = await fetch(`${API_URL}${path}`, {
     method: 'POST',
     headers: token ? { Authorization: `Bearer ${token}` } : {},
     body: form,

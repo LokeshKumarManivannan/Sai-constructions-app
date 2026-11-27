@@ -13,7 +13,7 @@ import { colors, font, radius, space } from '@/ui/theme';
 
 type Icon = React.ComponentProps<typeof Ionicons>['name'];
 type Viewer = 'customer' | 'owner';
-type Tab = 'money' | 'extra' | 'progress' | 'documents' | 'expenses';
+type Tab = 'money' | 'extra' | 'progress' | 'documents' | 'expenses' | 'bank';
 const LOOK: Record<Notification['kind'], { icon: Icon; color: string; tab: Tab }> = {
   payment_due: { icon: 'cash', color: colors.warn, tab: 'money' },
   extra_work: { icon: 'construct', color: colors.warn, tab: 'money' },
@@ -27,12 +27,15 @@ const LOOK: Record<Notification['kind'], { icon: Icon; color: string; tab: Tab }
   untagged: { icon: 'receipt', color: colors.warn, tab: 'expenses' },
   extra_decided: { icon: 'construct', color: colors.good, tab: 'extra' },
   supervisor_spent: { icon: 'wallet', color: colors.brand, tab: 'expenses' },
+  bank_to_explain: { icon: 'business', color: colors.warn, tab: 'bank' },
+  bank_statement_due: { icon: 'cloud-upload', color: colors.warn, tab: 'bank' },
 };
 
 function target(viewer: Viewer, n: Notification): Href {
   const tab = LOOK[n.kind].tab;
   if (viewer === 'customer') return tab === 'progress' || tab === 'documents' ? (`/customer/${tab}` as Href) : '/customer';
   if (n.kind === 'untagged') return '/owner/untagged';
+  if (tab === 'bank') return '/owner/bank';
   return { pathname: '/owner/projects/[id]', params: { id: n.project_id!, tab } };
 }
 

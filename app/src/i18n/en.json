@@ -441,7 +441,10 @@
     "supervisor_spent": "{{by}} spent {{amount}} from petty cash. {{name}}",
     "photos_owner": "{{by}} added {{name}} work photos.",
     "untagged_one": "1 payment needs a reason or bill photo.",
-    "untagged_other": "{{count}} payments need a reason or bill photo."
+    "untagged_other": "{{count}} payments need a reason or bill photo.",
+    "bank_to_explain_one": "1 bank entry needs explaining: who, which site, what for.",
+    "bank_to_explain_other": "{{count}} bank entries need explaining: who, which site, what for.",
+    "bank_statement_due": "Upload last month's ICICI bank statement."
   },
   "stage": {
     "title": "Where we are",
@@ -456,5 +459,41 @@
     "seeQuote": "See the quote",
     "workDone": "Work done",
     "stagesDone": "{{done}} of {{total}} stages finished"
+  },
+  "bank": {
+    "title": "Bank statement",
+    "explain": "Explain bank entry",
+    "upload": "Upload bank statement",
+    "uploadHelp": "ICICI net banking → Accounts → Account statement → last month → download as Excel (XLS). Uploading the same month twice is safe.",
+    "toExplainN_one": "1 bank entry to explain",
+    "toExplainN_other": "{{count}} bank entries to explain",
+    "allExplained": "Every bank entry is explained ✓",
+    "monthScore": "This month: {{done}} of {{total}} bank entries explained",
+    "lastStatement": "Statement uploaded up to {{date}}",
+    "noStatement": "No statement uploaded yet",
+    "imported": "Read {{rows}} lines, {{added}} new",
+    "importDetail": "{{matched}} matched entries already recorded · {{todo}} to explain · {{dup}} already uploaded before",
+    "tab_to_explain": "To explain",
+    "tab_done": "Explained",
+    "tab_personal": "Personal",
+    "empty_to_explain": "Nothing to explain. Upload last month's statement when it is ready.",
+    "empty_done": "Nothing explained yet.",
+    "empty_personal": "No personal entries.",
+    "looksLike": "Looks like: {{what}}",
+    "looksCash": "Looks like cash (ATM)",
+    "paidOut": "Paid out",
+    "received": "Received",
+    "alreadyRecorded": "Already recorded? Tap the matching entry",
+    "business": "Business payment",
+    "customerPayment": "Money from a customer",
+    "whichProject": "Which project is this money for?",
+    "cashWithdrawal": "Cash taken out (goes into the cash box)",
+    "cashDeposit": "Cash deposited (from the cash box)",
+    "personal": "Personal, not business",
+    "personalHelp": "Personal entries are kept out of the company books.",
+    "reopen": "Undo, explain again",
+    "siteCode": "Site code for UPI notes",
+    "siteCodeHelp": "When paying by UPI for this site, type {{code}} in the note (for example \"{{code}} cement\"). The bank statement then files it here automatically.",
+    "changeCode": "Change code"
   }
 }

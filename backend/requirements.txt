@@ -8,6 +8,7 @@ PyJWT==2.15.1
 phonenumbers==9.0.44
 python-multipart==0.0.20
 openpyxl==3.1.5
+xlrd==2.0.1
 vercel==0.13.3  # Blob storage when STORAGE_BACKEND=vercel_blob
 
 # dev / test

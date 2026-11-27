@@ -29,6 +29,8 @@ class Project(Base):
     id: Mapped[uuid.UUID] = uuid_pk()
     customer_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("customers.id"), index=True)
     name: Mapped[str] = mapped_column(String(160))
+    # Short code typed in UPI remarks (e.g. "TAM cement") so bank lines file themselves under this site.
+    site_code: Mapped[str | None] = mapped_column(String(12), unique=True)
     site_address: Mapped[str] = mapped_column(Text, default="")
     google_maps_url: Mapped[str | None] = mapped_column(Text)
     plot_size: Mapped[str | None] = mapped_column(String(60))
