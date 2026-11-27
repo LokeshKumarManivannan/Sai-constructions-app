@@ -174,7 +174,8 @@
     "markDue": "Ask for payment",
     "dueDate": "Payment due date (DD/MM/YYYY, optional)",
     "undo": "Undo",
-    "datePaid": "Date paid"
+    "datePaid": "Date paid",
+    "breakdown": "{{contract}} contract + {{extras}} extra work"
   },
   "mode": {
     "upi": "UPI",
