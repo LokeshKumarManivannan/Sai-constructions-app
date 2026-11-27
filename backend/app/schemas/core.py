@@ -109,6 +109,8 @@ class ProjectWithCustomerIn(BaseModel):
 
 class ProjectUpdate(BaseModel):
     name: str | None = Field(default=None, min_length=1, max_length=160)
+    # Typed in UPI remarks to file bank payments under this site: 2-8 letters/digits, stored uppercase.
+    site_code: str | None = Field(default=None, pattern=r"^[A-Za-z0-9]{2,8}$")
     site_address: str | None = None
     google_maps_url: str | None = None
     plot_size: str | None = None
@@ -126,6 +128,7 @@ class ProjectOut(ORM):
     customer_id: uuid.UUID
     customer_name: str = ""
     name: str
+    site_code: str | None = None
     site_address: str
     google_maps_url: str | None
     plot_size: str | None

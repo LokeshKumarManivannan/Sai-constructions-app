@@ -9,6 +9,7 @@ import { formatINR } from '@/lib/money';
 import { openUrl } from '@/lib/share';
 import { PROJECT_STATUSES, type Project, type ProjectStatus } from '@/lib/types';
 import { BuildingProgress } from '@/ui/BuildingProgress';
+import { SiteCodeCard } from './SiteCodeCard';
 import { BigButton, Card, ChipPicker, HeroCard, IconLabel, Muted } from '@/ui/components';
 import { Text } from '@/ui/Text';
 import { colors, font, space } from '@/ui/theme';
@@ -57,6 +58,7 @@ export function OverviewSection({ project: p, onChanged }: { project: Project; o
         <Muted>{t('owner.status')}</Muted>
         <ChipPicker options={PROJECT_STATUSES} value={p.status} onChange={setStatus} labelOf={(s) => t(`status.${s}`)} />
       </Card>
+      <SiteCodeCard project={p} onChanged={onChanged} />
     </>
   );
 }

@@ -32,6 +32,7 @@ export interface Project {
   customer_id: string;
   customer_name: string;
   name: string;
+  site_code: string | null;
   site_address: string;
   google_maps_url: string | null;
   plot_size: string | null;
@@ -297,4 +298,54 @@ export interface Handover {
   all_checked: boolean;
   signed_by_name: string | null;
   signed_at: string | null;
+}
+
+export type BankStatus = 'to_explain' | 'done' | 'personal';
+
+export interface BankTxn {
+  id: string;
+  txn_date: string;
+  amount_paise: number;
+  direction: 'debit' | 'credit';
+  narration: string;
+  raw_line: string;
+  balance_paise: number | null;
+  verified: boolean;
+  ref: string | null;
+  counterparty: string | null;
+  source: 'statement' | 'sms';
+  status: BankStatus;
+  auto_matched: boolean;
+  linked: { kind: 'expense' | 'payment' | 'cash'; id: string; label: string } | null;
+  suggestion: {
+    kind: 'expense' | 'receipt' | 'cash';
+    payee_id: string | null;
+    payee_name: string | null;
+    project_id: string | null;
+    project_name: string | null;
+    category: ExpenseCategory | null;
+    milestone_id: string | null;
+    why: 'memory' | 'site_code' | 'customer_name' | 'atm' | null;
+  } | null;
+  reviewed_at: string | null;
+}
+
+export interface BankSummary {
+  to_explain: number;
+  month_total: number;
+  month_explained: number;
+  last_statement_date: string | null;
+  statement_due: boolean;
+  gaps: [string, string][];
+}
+
+export interface BankImport {
+  rows: number;
+  added: number;
+  duplicates: number;
+  matched: number;
+  to_explain: number;
+  first_date: string | null;
+  last_date: string | null;
+  verified: boolean;
 }
