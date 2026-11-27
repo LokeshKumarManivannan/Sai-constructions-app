@@ -422,5 +422,15 @@
     "yearBills": "All bill photos for the year (ZIP)",
     "note": "Excel files list money received and money paid out with dates, modes and transaction IDs. Each bill photo has the same name in the Excel file and in the ZIP.",
     "preparing": "Preparing…"
+  },
+  "notify": {
+    "title": "Notifications",
+    "none": "Nothing new right now.",
+    "payment_due": "Payment due: {{amount}} for {{name}}. Please pay by {{date}}.",
+    "extra_work": "Extra work to approve: {{name}}, {{amount}}.",
+    "check_payment": "Sai Constructions recorded a payment of {{amount}}. Please check it.",
+    "payment_confirmed": "Your payment of {{amount}} is confirmed.",
+    "photos": "New {{name}} work photos added.",
+    "document": "New document added: {{name}}."
   }
 }

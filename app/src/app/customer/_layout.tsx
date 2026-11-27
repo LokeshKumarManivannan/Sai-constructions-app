@@ -11,6 +11,7 @@ export default function CustomerLayout() {
       <Stack screenOptions={headerOptions}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="pay" options={{ title: t('payments.logCustomer') }} />
+        <Stack.Screen name="notifications" options={{ title: t('notify.title') }} />
       </Stack>
     </RoleGate>
   );
