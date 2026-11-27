@@ -10,13 +10,15 @@ import { TRADES, type ProgressUpdate, type Trade } from '@/lib/types';
 import { Card, ChipPicker, Loading, Muted, Row, SpeakButton, StatusChip } from '@/ui/components';
 import { colors, font, space } from '@/ui/theme';
 
-/** Newest-first photo timeline with trade filter chips. `trades` limits the filter (supervisors). */
+/** Newest-first photo timeline; trade chips only for trades with photos. `trades` limits what is shown (supervisors). */
 export function ProgressTimeline({ projectId, trades = TRADES }: { projectId: string; trades?: Trade[] }) {
   const { t } = useTranslation();
   const [filter, setFilter] = useState<Trade | 'all'>('all');
-  const { data, loading } = useApi<ProgressUpdate[]>(
-    `/projects/${projectId}/progress${filter === 'all' ? '' : `?trade=${filter}`}`,
-  );
+  const all = useApi<ProgressUpdate[]>(`/projects/${projectId}/progress`);
+  // Only trades that already have photos get a tab (civil first; electrical appears once posted).
+  const present = trades.filter((tr) => all.data?.some((u) => u.trade === tr));
+  const data = all.data?.filter((u) => filter === 'all' || u.trade === filter);
+  const loading = all.loading;
 
   const spoken = (data ?? [])
     .slice(0, 3)
@@ -25,9 +27,9 @@ export function ProgressTimeline({ projectId, trades = TRADES }: { projectId: st
 
   return (
     <>
-      {trades.length > 1 && (
+      {present.length > 1 && (
         <ChipPicker
-          options={['all', ...trades] as (Trade | 'all')[]}
+          options={['all', ...present] as (Trade | 'all')[]}
           value={filter}
           onChange={setFilter}
           labelOf={(k) => (k === 'all' ? t('progress.all') : t(`trade.${k}`))}

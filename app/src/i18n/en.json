@@ -441,5 +441,18 @@
     "photos_owner": "{{by}} added {{name}} work photos.",
     "untagged_one": "1 payment needs a reason or bill photo.",
     "untagged_other": "{{count}} payments need a reason or bill photo."
+  "stage": {
+    "title": "Where we are",
+    "quote": "Quote issued",
+    "contract_signed": "Contract signed",
+    "in_progress": "Work in progress",
+    "handed_over": "Handed over",
+    "quoteNow": "Waiting for you to sign the contract.",
+    "contract_signedNow": "Work will start soon.",
+    "in_progressNow": "Your house is being built. See the Progress tab for photos.",
+    "handed_overNow": "Keys and documents handed over.",
+    "seeQuote": "See the quote",
+    "workDone": "Work done",
+    "stagesDone": "{{done}} of {{total}} stages finished"
   }
 }
