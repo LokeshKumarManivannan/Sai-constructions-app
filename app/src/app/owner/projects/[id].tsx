@@ -8,6 +8,7 @@ import { HandoverSection } from '@/features/documents/HandoverSection';
 import { ChangeOrderList } from '@/features/changeOrders/ChangeOrderList';
 import { PaymentsSection } from '@/features/payments/PaymentsSection';
 import { ProgressTimeline } from '@/features/progress/ProgressTimeline';
+import { TradeBoard } from '@/features/progress/TradeBoard';
 import { InviteSection } from '@/features/project/InviteSection';
 import { MilestonesSection } from '@/features/project/MilestonesSection';
 import { OverviewSection } from '@/features/project/OverviewSection';
@@ -62,6 +63,7 @@ export default function OwnerProject() {
       )}
       {tab === 'progress' && (
         <>
+          <TradeBoard projectId={project.id} editable />
           <BigButton
             label={t('progress.add')}
             icon="camera"

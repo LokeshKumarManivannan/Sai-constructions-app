@@ -14,6 +14,8 @@ export type Notification = {
     | 'payment_confirmed'
     | 'photos'
     | 'document'
+    | 'trade_ongoing'
+    | 'trade_done'
     | 'confirm_payment'
     | 'disputed'
     | 'overdue'
