@@ -4,6 +4,10 @@ import { Pressable, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 
+import i18n from '@/i18n';
+
+import { HANDOVER_TA } from './handoverDefaults';
+
 import { api } from '@/lib/api';
 import { showDate } from '@/lib/dates';
 import { useApi } from '@/lib/useApi';
@@ -27,7 +31,7 @@ function ItemRow({ it, editable, onSet }: { it: HandoverItem; editable: boolean;
         style={{ flexDirection: 'row', alignItems: 'center', gap: space.s, minHeight: 44 }}
       >
         <Ionicons name={it.checked ? 'checkbox' : 'square-outline'} size={30} color={it.checked ? colors.good : colors.muted} />
-        <Text style={{ flex: 1, fontSize: font.body, color: colors.text }}>{it.item}</Text>
+        <Text style={{ flex: 1, fontSize: font.body, color: colors.text }}>{(i18n.language === 'ta' && HANDOVER_TA[it.item]) || it.item}</Text>
       </Pressable>
       {editable ? (
         <Field

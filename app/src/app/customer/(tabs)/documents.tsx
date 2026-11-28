@@ -12,8 +12,8 @@ export default function CustomerDocuments() {
   if (!project) return <Screen><ErrorText>{error}</ErrorText></Screen>;
   return (
     <Screen>
-      <HandoverSection projectId={project.id} viewer="customer" />
       <DocumentList projectId={project.id} viewer="customer" />
+      <HandoverSection projectId={project.id} viewer="customer" />
       <Card>
         <Title>{t('warranty.title')}</Title>
         <Muted>{t('warranty.soon')}</Muted>

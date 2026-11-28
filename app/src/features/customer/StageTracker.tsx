@@ -39,22 +39,3 @@ export function StageTracker({ project }: { project: Project }) {
     </Card>
   );
 }
-
-/** Overall progress from stages finished. */
-export function ProgressMeter({ project }: { project: Project }) {
-  const { t } = useTranslation();
-  const total = project.milestones_total || 0;
-  const pct = total ? Math.round((project.milestones_done / total) * 100) : 0;
-  return (
-    <Card>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
-        <Title>{t('stage.workDone')}</Title>
-        <Text style={{ fontSize: font.big, fontWeight: '800', color: colors.brand }}>{pct}%</Text>
-      </View>
-      <View style={{ height: 12, borderRadius: 6, backgroundColor: colors.border, overflow: 'hidden' }}>
-        <View style={{ width: `${pct}%`, height: '100%', backgroundColor: colors.accent }} />
-      </View>
-      <Muted>{t('stage.stagesDone', { done: project.milestones_done, total })}</Muted>
-    </Card>
-  );
-}
