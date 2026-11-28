@@ -30,7 +30,8 @@ from app.models import (
 from app.services import money
 from app.services.bank_statement import Row, parse_narration
 
-MATCH_DAYS = 3
+MATCH_DAYS = 3  # same amount, no reference: only offered within 3 days
+REF_MATCH_DAYS = 45  # same transaction reference: entered late is still the same payment
 
 
 # ---------- site codes ----------
@@ -156,8 +157,8 @@ def _linked_ids(db: Session, col) -> set:
     return set(db.scalars(select(col).where(col.is_not(None))))
 
 
-def candidates(db: Session, t: BankTxn) -> list:
-    lo, hi = t.txn_date - timedelta(days=MATCH_DAYS), t.txn_date + timedelta(days=MATCH_DAYS)
+def candidates(db: Session, t: BankTxn, days: int = MATCH_DAYS) -> list:
+    lo, hi = t.txn_date - timedelta(days=days), t.txn_date + timedelta(days=days)
     if t.direction == BankDirection.debit:
         used = _linked_ids(db, BankTxn.expense_id)
         rows = db.scalars(
@@ -193,7 +194,7 @@ def auto_match(db: Session, t: BankTxn) -> bool:
     if not t.ref:
         return False
     ref = t.ref.upper()
-    same = [c for c in candidates(db, t) if _ref_of(c) and (ref in _ref_of(c) or _ref_of(c) in ref)]
+    same = [c for c in candidates(db, t, REF_MATCH_DAYS) if _ref_of(c) and (ref in _ref_of(c) or _ref_of(c) in ref)]
     if len(same) != 1:
         return False
     link(t, same[0])

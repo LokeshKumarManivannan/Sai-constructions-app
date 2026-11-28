@@ -28,3 +28,22 @@ def test_supervisor_posts_own_trade_only(client, owner):
     assert len(client.get(f"/projects/{p['id']}/progress", headers=cust).json()) == 2
     assert len(client.get(f"/projects/{p['id']}/progress?trade=civil", headers=cust).json()) == 1
     assert client.post(f"/projects/{p['id']}/progress", json={"trade": "civil", "note": "x"}, headers=cust).status_code == 403
+
+
+def test_trade_board(client, owner):
+    from tests.helpers import add_supervisor, setup_project
+
+    p, cust = setup_project(client, owner)
+    board = client.get(f"/projects/{p['id']}/trades", headers=cust).json()
+    assert [b["trade"] for b in board] == ["civil", "plumbing", "electrical", "carpentry", "painting"]
+    assert {b["state"] for b in board} == {"not_started"}
+    client.put(f"/projects/{p['id']}/trades/civil", json={"state": "ongoing"}, headers=owner)
+    board = client.put(f"/projects/{p['id']}/trades/electrical", json={"state": "ongoing"}, headers=owner).json()
+    assert board[0]["state"] == "ongoing" and board[2]["state"] == "ongoing" and board[1]["state"] == "not_started"
+    client.put(f"/projects/{p['id']}/trades/civil", json={"state": "done"}, headers=owner)
+    kinds = [n["kind"] for n in client.get("/notifications", headers=cust).json()]
+    assert "trade_ongoing" in kinds and "trade_done" in kinds
+    _, sup = add_supervisor(client, owner, p["id"], trade="civil")
+    assert client.get(f"/projects/{p['id']}/trades", headers=sup).status_code == 200
+    assert client.put(f"/projects/{p['id']}/trades/civil", json={"state": "ongoing"}, headers=sup).status_code == 403
+    assert client.put(f"/projects/{p['id']}/trades/civil", json={"state": "ongoing"}, headers=cust).status_code == 403

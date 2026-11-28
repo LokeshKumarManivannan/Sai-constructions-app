@@ -23,15 +23,12 @@ from app.models import (
 
 
 def is_tagged(e: Expense) -> bool:
-    """Complete enough for the books: has a category, a reason, a bill/voucher photo, and a site
-    (advances may be general)."""
-    return bool(
-        e.category
-        and e.reason
-        and e.reason.strip()
-        and e.bill_file_id
-        and (e.project_id or e.category == ExpenseCategory.advance)
-    )
+    """Complete enough for the books: has a category, a reason, proof, and a site (advances may be general).
+    Proof is a bill/voucher photo; for petty cash handed to a supervisor, the supervisor tapping
+    "Yes, I received this" is the proof (there is no bill for handing over cash)."""
+    if e.category == ExpenseCategory.advance:
+        return bool(e.reason and e.reason.strip() and (e.bill_file_id or e.recipient_confirmed_at))
+    return bool(e.category and e.reason and e.reason.strip() and e.bill_file_id and e.project_id)
 
 
 @dataclass
