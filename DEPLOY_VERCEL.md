@@ -114,3 +114,28 @@ If something fails: `sai-api` → **Logs** shows the API errors.
 
 - Connect an SMS provider and set `DEV_EXPOSE_OTP=false`.
 - Decide on hosting region and backups for customer data (Neon has point-in-time restore on paid plans).
+
+## Real login codes with Firebase
+
+The API decides how people log in (`AUTH_PROVIDER`). With `firebase`, Google sends the SMS code and the
+API only accepts a verified Firebase token; the test-code endpoints are switched off.
+
+1. https://console.firebase.google.com → **Add project** (e.g. `sai-constructions`). Analytics not needed.
+2. **Upgrade to Blaze** (pay as you go, billing account needed: Firebase only sends SMS on Blaze).
+   The first 10 SMS a day are free; after that about $0.07 per SMS to India. Set a budget alert in Google Cloud Billing.
+3. **Security → Authentication → Sign-in method → Phone → Enable.**
+4. **Authentication → Settings:**
+   - *Authorized domains*: add the web app's domain (e.g. `sai-constructions-app-app.vercel.app`, later your own domain).
+     `localhost` does not work for phone login.
+   - *SMS region policy*: **Allow** only **India**.
+   - Optional for testing: *Sign-in method → Phone → Phone numbers for testing*: add e.g. `+91 98765 00001` with code `123456`.
+     No SMS is sent for these numbers. The number must still belong to someone added in the app.
+5. **Project settings (gear) → General → Your apps → Web (`</>`)** → register an app → copy `apiKey`, `projectId`, `appId`.
+6. Vercel → **API project → Environment Variables**:
+   - `AUTH_PROVIDER` = `firebase`
+   - `FIREBASE_PROJECT_ID`, `FIREBASE_API_KEY`, `FIREBASE_APP_ID` = the values from step 5
+   - `DEV_EXPOSE_OTP` = `false`
+   Redeploy the API. The login screen picks it up on its own (no change to the web app project).
+
+To go back to test codes: set `AUTH_PROVIDER` = `otp` (and `DEV_EXPOSE_OTP` = `true`) and redeploy.
+The phone app (not the web link) needs a native Firebase module before it can use this; until then use the web link on phones.

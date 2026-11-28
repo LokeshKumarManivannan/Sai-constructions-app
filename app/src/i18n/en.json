@@ -29,7 +29,13 @@
     "devCode": "Test code: {{code}}",
     "notRegistered": "This number is not registered with Sai Constructions. Please call us.",
     "headline": "Your home, floor by floor.",
-    "sub": "Payments, extra work and site photos for your house, in one place."
+    "sub": "Payments, extra work and site photos for your house, in one place.",
+    "wrongCode": "That code is not right. Check the SMS and try again.",
+    "codeExpired": "The code has expired. Tap Change number and send a new code.",
+    "tooMany": "Too many tries. Wait a few minutes and try again.",
+    "badPhone": "Enter a 10-digit mobile number.",
+    "useWebLink": "For now, log in through the web link in your browser.",
+    "network": "Could not reach the login service. Check the internet connection and try again."
   },
   "invite": {
     "title": "You are invited",

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { Redirect, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/auth/AuthContext';
 import { homeFor } from '@/auth/RoleGate';
 import { api, ApiError } from '@/lib/api';
+import { confirmFirebaseCode, firebaseErrorKey, getAuthConfig, RECAPTCHA_ID, sendFirebaseCode, type AuthConfig } from '@/lib/firebasePhone';
 import type { User } from '@/lib/types';
 import { BuildingProgress } from '@/ui/BuildingProgress';
 import { BigButton, BrickPattern, ErrorText, Field, Muted } from '@/ui/components';
@@ -24,18 +25,38 @@ export default function Login() {
   const [devCode, setDevCode] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [config, setConfig] = useState<AuthConfig | null>(null);
+
+  useEffect(() => {
+    getAuthConfig()
+      .then(setConfig)
+      .catch(() => setConfig({ provider: 'otp', firebase: null }));
+  }, []);
 
   if (user) return <Redirect href={homeFor(user.role)} />;
+  const viaFirebase = config?.provider === 'firebase' && !!config.firebase;
+
+  function showError(e: unknown) {
+    const key = firebaseErrorKey(e);
+    if (key) setError(t(key));
+    else if (e instanceof ApiError && e.status === 403) setError(t('login.notRegistered'));
+    else setError(e instanceof Error ? e.message : t('common.error'));
+  }
 
   async function sendCode() {
     setBusy(true);
     setError(null);
     try {
-      const r = await api<{ dev_code: string | null }>('/auth/otp/request', { method: 'POST', body: { phone } });
-      setDevCode(r.dev_code);
+      if (viaFirebase) {
+        await sendFirebaseCode(config!.firebase!, phone, i18n.language);
+        setDevCode(null);
+      } else {
+        const r = await api<{ dev_code: string | null }>('/auth/otp/request', { method: 'POST', body: { phone } });
+        setDevCode(r.dev_code);
+      }
       setStep('code');
     } catch (e) {
-      setError(e instanceof Error ? e.message : t('common.error'));
+      showError(e);
     } finally {
       setBusy(false);
     }
@@ -45,10 +66,12 @@ export default function Login() {
     setBusy(true);
     setError(null);
     try {
-      const r = await api<{ access_token: string; user: User }>('/auth/otp/verify', { method: 'POST', body: { phone, code } });
+      const r = viaFirebase
+        ? await confirmFirebaseCode<{ access_token: string; user: User }>(code)
+        : await api<{ access_token: string; user: User }>('/auth/otp/verify', { method: 'POST', body: { phone, code } });
       await signIn(r.access_token, r.user);
     } catch (e) {
-      setError(e instanceof ApiError && e.status === 403 ? t('login.notRegistered') : (e as Error).message);
+      showError(e);
     } finally {
       setBusy(false);
     }
@@ -83,7 +106,13 @@ export default function Login() {
             {step === 'phone' ? (
               <>
                 <Field label={t('login.phone')} value={phone} onChangeText={setPhone} keyboardType="phone-pad" autoComplete="tel" placeholder="98765 43210" />
-                <BigButton label={t('login.sendCode')} icon="chatbox-ellipses" onPress={sendCode} busy={busy} disabled={phone.trim().length < 10} />
+                <BigButton
+                  label={t('login.sendCode')}
+                  icon="chatbox-ellipses"
+                  onPress={sendCode}
+                  busy={busy}
+                  disabled={!config || phone.replace(/\D/g, '').length < 10}
+                />
               </>
             ) : (
               <>
@@ -103,6 +132,8 @@ export default function Login() {
               </>
             )}
             <ErrorText>{error}</ErrorText>
+            {/* Firebase's invisible "are you a robot" check attaches here (web). */}
+            <View nativeID={RECAPTCHA_ID} />
           </View>
         </View>
       </ScrollView>
