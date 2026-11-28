@@ -20,6 +20,8 @@ const LOOK: Record<Notification['kind'], { icon: Icon; color: string; tab: Tab }
   check_payment: { icon: 'help-circle', color: colors.warn, tab: 'money' },
   payment_confirmed: { icon: 'checkmark-circle', color: colors.good, tab: 'money' },
   photos: { icon: 'images', color: colors.brand, tab: 'progress' },
+  trade_ongoing: { icon: 'construct', color: colors.brand, tab: 'progress' },
+  trade_done: { icon: 'checkmark-circle', color: colors.good, tab: 'progress' },
   document: { icon: 'document-text', color: colors.brand, tab: 'documents' },
   confirm_payment: { icon: 'help-circle', color: colors.warn, tab: 'money' },
   disputed: { icon: 'alert-circle', color: colors.bad, tab: 'money' },
@@ -53,7 +55,7 @@ export function NotificationList({ viewer }: { viewer: Viewer }) {
   const text = (n: Notification) =>
     t(`notify.${n.kind}${n.status ? `_${n.status}` : ''}${viewer === 'owner' && n.kind === 'photos' ? '_owner' : ''}`, {
       amount: n.amount_paise != null ? formatINR(n.amount_paise) : '',
-      name: n.kind === 'photos' && n.name ? t(`trade.${n.name}`) : n.kind === 'bank_gap' ? '' : n.name ?? '',
+      name: (n.kind === 'photos' || n.kind.startsWith('trade_')) && n.name ? t(`trade.${n.name}`) : n.kind === 'bank_gap' ? '' : n.name ?? '',
       date: n.due_date ? showDate(n.due_date) : '',
       from: n.kind === 'bank_gap' && n.name ? showDate(n.name) : '',
       by: n.by ?? '',

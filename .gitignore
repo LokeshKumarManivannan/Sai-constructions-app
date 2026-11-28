@@ -19,3 +19,4 @@ app/android/
 .DS_Store
 .vscode/
 .idea/
+backend/uploads/

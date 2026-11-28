@@ -25,6 +25,8 @@ from app.models import (
     PaymentStatus,
     ProgressUpdate,
     Role,
+    TradeState,
+    TradeStatus,
     User,
     Visibility,
 )
@@ -38,7 +40,7 @@ NEWS_DAYS = 30
 
 class NotificationOut(BaseModel):
     id: str
-    # customer: payment_due | extra_work | check_payment | payment_confirmed | photos | document
+    # customer: payment_due | extra_work | check_payment | payment_confirmed | photos | document | trade_ongoing | trade_done
     # owner: confirm_payment | disputed | overdue | untagged | extra_decided | photos | supervisor_spent
     #        | bank_to_explain | bank_statement_due | bank_gap
     kind: str
@@ -87,6 +89,11 @@ def _customer(db: Session, user: User, since: datetime) -> list[NotificationOut]
 
         for u in db.scalars(select(ProgressUpdate).where(ProgressUpdate.project_id == p.id, ProgressUpdate.created_at >= since)):
             out.append(NotificationOut(id=f"pg-{u.id}", kind="photos", action=False, at=u.created_at, name=u.trade.value, **base))
+
+        for ts in db.scalars(select(TradeStatus).where(TradeStatus.project_id == p.id, TradeStatus.changed_at >= since,
+                                                       TradeStatus.state != TradeState.not_started)):
+            out.append(NotificationOut(id=f"tr-{ts.id}-{ts.state.value}", kind=f"trade_{ts.state.value}", action=False, at=ts.changed_at,
+                                       name=ts.trade.value, **base))
 
         for d in db.scalars(select(Document).where(Document.project_id == p.id, Document.visibility == Visibility.customer, Document.created_at >= since)):
             out.append(NotificationOut(id=f"doc-{d.id}", kind="document", action=False, at=d.created_at, name=d.title, **base))

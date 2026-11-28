@@ -117,3 +117,16 @@ def test_home_numbers_and_expected_margin(client, owner):
     assert s["to_collect_paise"] == 40_00_000_00
     site = s["sites"][0]
     assert site["expected_margin_paise"] == 44_00_000_00
+
+
+def test_advance_proved_by_supervisor_acknowledgement(client, owner):
+    from tests.helpers import add_supervisor, setup_project
+
+    p, _ = setup_project(client, owner)
+    sup, sup_h = add_supervisor(client, owner, p["id"], trade="civil")
+    murugan = next(x for x in client.get("/payees", headers=owner).json() if x["type"] == "supervisor")
+    e = client.post("/expenses", json={"payee_id": murugan["id"], "amount_paise": 20_000_00, "mode": "cash", "paid_on": "2026-11-15",
+                                       "category": "advance", "reason": "Petty cash"}, headers=owner).json()
+    assert client.get("/books/summary", headers=owner).json()["untagged_count"] == 1
+    client.post(f"/expenses/{e['id']}/acknowledge", headers=sup_h)
+    assert client.get("/books/summary", headers=owner).json()["untagged_count"] == 0

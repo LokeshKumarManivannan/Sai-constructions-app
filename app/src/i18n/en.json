@@ -29,7 +29,13 @@
     "devCode": "Test code: {{code}}",
     "notRegistered": "This number is not registered with Sai Constructions. Please call us.",
     "headline": "Your home, floor by floor.",
-    "sub": "Payments, extra work and site photos for your house, in one place."
+    "sub": "Payments, extra work and site photos for your house, in one place.",
+    "wrongCode": "That code is not right. Check the SMS and try again.",
+    "codeExpired": "The code has expired. Tap Change number and send a new code.",
+    "tooMany": "Too many tries. Wait a few minutes and try again.",
+    "badPhone": "Enter a 10-digit mobile number.",
+    "useWebLink": "For now, log in through the web link in your browser.",
+    "network": "Could not reach the login service. Check the internet connection and try again."
   },
   "invite": {
     "title": "You are invited",
@@ -105,7 +111,11 @@
     "afternoon": "Good afternoon",
     "evening": "Good evening",
     "stagesDone": "{{done}} of {{total}} stages done",
-    "noProjectsYet": "No projects yet. Add your first one with New project."
+    "noProjectsYet": "No projects yet. Add your first one with New project.",
+    "inviteSms": "Sai Constructions: your house project account is ready. Open this link and log in with this mobile number: {{link}}",
+    "sendSmsAgain": "Open the text message again",
+    "smsOpened": "The Messages app opened with the invite. Press Send there.",
+    "smsCopied": "Invite text copied. On a computer the Messages app can't open: paste it into a message to the customer, or invite from the phone."
   },
   "supervisor": {
     "mySites": "My sites",
@@ -297,7 +307,8 @@
     "expectedMargin": "Expected margin",
     "contract": "Contract + extras",
     "moneyIn": "Money received",
-    "pickProjectIn": "Which project is this money for?"
+    "pickProjectIn": "Which project is this money for?",
+    "downloadsShort": "Downloads"
   },
   "ptype": {
     "labour": "Labour",
@@ -445,7 +456,9 @@
     "bank_to_explain_one": "1 bank entry needs explaining: who, which site, what for.",
     "bank_to_explain_other": "{{count}} bank entries need explaining: who, which site, what for.",
     "bank_statement_due": "Upload last month's ICICI bank statement.",
-    "bank_gap": "Bank statement missing between {{from}} and {{date}}: some transactions are not in the app yet."
+    "bank_gap": "Bank statement missing between {{from}} and {{date}}: some transactions are not in the app yet.",
+    "trade_ongoing": "{{name}} work has started.",
+    "trade_done": "{{name}} work is finished."
   },
   "stage": {
     "title": "Where we are",
@@ -507,5 +520,12 @@
     "balanceAfter": "Balance after",
     "lineVerified": "✓ Matches the bank's running balance",
     "lineNotVerified": "Not cross-checked (no balance in the file)"
+  },
+  "work": {
+    "title": "Work at site",
+    "not_started": "Not started",
+    "ongoing": "Going on",
+    "done": "Done",
+    "since": "Since {{date}}"
   }
 }

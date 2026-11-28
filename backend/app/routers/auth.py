@@ -4,6 +4,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from pydantic import BaseModel
+
+from app.auth import firebase
 from app.auth.deps import current_user
 from app.auth.phone import InvalidPhone, normalize_phone
 from app.auth.security import create_access_token, hash_otp, new_otp, otp_matches
@@ -36,8 +39,47 @@ def _pending_invites(db: Session, phone: str) -> list[Invite]:
     )
 
 
+def _otp_enabled() -> None:
+    if settings.auth_provider != "otp":
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "log in with the phone code sent by Firebase")
+
+
+class AuthConfigOut(BaseModel):
+    provider: str  # otp | firebase
+    firebase: dict | None = None
+
+
+@router.get("/auth/config", response_model=AuthConfigOut)
+def auth_config() -> AuthConfigOut:
+    """Tells the login screen how to log in. Firebase web config values are public by design."""
+    if settings.auth_provider == "firebase":
+        return AuthConfigOut(provider="firebase", firebase={
+            "apiKey": settings.firebase_api_key,
+            "authDomain": settings.firebase_auth_domain or f"{settings.firebase_project_id}.firebaseapp.com",
+            "projectId": settings.firebase_project_id,
+            "appId": settings.firebase_app_id,
+        })
+    return AuthConfigOut(provider="otp")
+
+
+class FirebaseLoginIn(BaseModel):
+    id_token: str
+
+
+@router.post("/auth/firebase", response_model=TokenOut)
+def firebase_login(body: FirebaseLoginIn, db: Session = Depends(get_db)) -> TokenOut:
+    if settings.auth_provider != "firebase":
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Firebase login is not switched on")
+    try:
+        phone = _phone_or_422(firebase.verified_phone(body.id_token))
+    except firebase.FirebaseTokenError:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "login expired, request a new code") from None
+    return _complete_login(db, phone)
+
+
 @router.post("/auth/otp/request", response_model=OtpRequestOut)
 def request_otp(body: OtpRequestIn, db: Session = Depends(get_db)) -> OtpRequestOut:
+    _otp_enabled()
     phone = _phone_or_422(body.phone)
     now = datetime.now(UTC)
 
@@ -62,6 +104,7 @@ def request_otp(body: OtpRequestIn, db: Session = Depends(get_db)) -> OtpRequest
 
 @router.post("/auth/otp/verify", response_model=TokenOut)
 def verify_otp(body: OtpVerifyIn, db: Session = Depends(get_db)) -> TokenOut:
+    _otp_enabled()
     phone = _phone_or_422(body.phone)
     now = datetime.now(UTC)
 
@@ -78,7 +121,12 @@ def verify_otp(body: OtpVerifyIn, db: Session = Depends(get_db)) -> TokenOut:
         db.commit()
         raise bad
     otp.consumed = True
+    db.flush()
+    return _complete_login(db, phone)
 
+
+def _complete_login(db: Session, phone: str) -> TokenOut:
+    """The phone number is proven (our OTP or Firebase): find the user, accept pending invites, issue our token."""
     user = db.scalar(select(User).where(User.phone == phone))
     invites = _pending_invites(db, phone)
 

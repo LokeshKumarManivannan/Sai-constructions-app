@@ -20,6 +20,16 @@ class Settings(BaseSettings):
     # Dev convenience: return the OTP in the API response. Must be false in production.
     dev_expose_otp: bool = True
 
+    # How people log in: "otp" (codes sent by this server via sms_provider) or "firebase"
+    # (Google's Firebase sends the SMS; this server checks the Firebase token). With "firebase"
+    # the /auth/otp/* endpoints are switched off so nobody can log in around it.
+    auth_provider: str = "otp"
+    firebase_project_id: str = ""
+    # Firebase web config (public values, shown in the Firebase console under Project settings).
+    firebase_api_key: str = ""
+    firebase_auth_domain: str = ""
+    firebase_app_id: str = ""
+
     invite_ttl_days: int = 7
     # Base URL the invite link points to (app landing / web app).
     app_base_url: str = "http://localhost:8081"
