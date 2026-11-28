@@ -40,7 +40,9 @@ function Shortcut({ icon, label, onPress }: { icon: React.ComponentProps<typeof 
       <View style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.12)', alignItems: 'center', justifyContent: 'center' }}>
         <Ionicons name={icon} size={22} color={colors.accent} />
       </View>
-      <Text style={{ color: colors.brandText, fontSize: 14, fontWeight: '600', textAlign: 'center' }}>{label}</Text>
+      <Text style={{ color: colors.brandText, fontSize: 13, fontWeight: '600', textAlign: 'center', alignSelf: 'stretch' }} numberOfLines={2}>
+        {label}
+      </Text>
     </Pressable>
   );
 }
@@ -82,7 +84,7 @@ export function BooksCard() {
         <Shortcut icon="arrow-down-circle" label={t('books.moneyIn')} onPress={() => router.push('/owner/payment')} />
         <Shortcut icon="arrow-up-circle" label={t('books.paySomeone')} onPress={() => router.push('/owner/pay-out')} />
         <Shortcut icon="stats-chart" label={t('books.ledger')} onPress={() => router.push('/owner/books')} />
-        <Shortcut icon="download" label={t('menu.downloads')} onPress={() => router.push('/owner/downloads')} />
+        <Shortcut icon="download" label={t('books.downloadsShort')} onPress={() => router.push('/owner/downloads')} />
       </View>
     </HeroCard>
   );

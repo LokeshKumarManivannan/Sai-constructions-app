@@ -297,7 +297,8 @@
     "expectedMargin": "Expected margin",
     "contract": "Contract + extras",
     "moneyIn": "Money received",
-    "pickProjectIn": "Which project is this money for?"
+    "pickProjectIn": "Which project is this money for?",
+    "downloadsShort": "Downloads"
   },
   "ptype": {
     "labour": "Labour",

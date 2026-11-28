@@ -1,4 +1,4 @@
-import { View } from 'react-native';
+import { useWindowDimensions, View } from 'react-native';
 
 import { HeaderActions } from './HeaderActions';
 import { Logo } from './Logo';
@@ -29,12 +29,14 @@ export function Wordmark({ size = 20, light = true }: { size?: number; light?: b
 
 /** Small mark for header titles. */
 export function HeaderTitle({ title }: { title: string }) {
+  // Leave room for the language, bell and logout buttons on the right (and the menu on the left).
+  const { width } = useWindowDimensions();
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, maxWidth: Math.max(140, width - 220) }}>
       <View style={{ width: 30, height: 30, borderRadius: 8, backgroundColor: '#F2F0ED', alignItems: 'center', justifyContent: 'center' }}>
         <Logo size={26} />
       </View>
-      <Text style={{ fontFamily: family.bold, fontSize: 18, color: colors.brandText }} numberOfLines={1}>
+      <Text style={{ fontFamily: family.bold, fontSize: 18, color: colors.brandText, flexShrink: 1 }} numberOfLines={1}>
         {title}
       </Text>
     </View>

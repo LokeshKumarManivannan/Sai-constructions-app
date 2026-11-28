@@ -277,3 +277,12 @@ def test_gap_between_uploads_is_flagged(client, owner):
     s = client.get("/bank/summary", headers=owner).json()
     assert s["gaps"] == [["2026-11-05", "2026-11-25"]]
     assert "bank_gap" in {n["kind"] for n in client.get("/notifications", headers=owner).json()}
+
+
+def test_reference_match_even_when_entered_late(client, owner):
+    p, _ = setup_project(client, owner)
+    ramesh = payee(client, owner)
+    # Entered in the app three weeks after paying, with the UPI reference.
+    client.post("/expenses", json={"payee_id": ramesh["id"], "amount_paise": 5_000_00, "mode": "upi", "paid_on": "2026-11-26",
+                                   "bank_txn_id": "431199887766"}, headers=owner)
+    assert _upload(client, owner, icici_xlsx(ROWS)).json()["matched"] == 1

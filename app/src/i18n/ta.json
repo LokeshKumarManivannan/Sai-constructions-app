@@ -113,7 +113,7 @@
   },
   "customer": {
     "money": "பணம்",
-    "progress": "முன்னேற்றம்",
+    "progress": "வேலை",
     "documents": "ஆவணங்கள்",
     "help": "உதவி",
     "contractValue": "மொத்த ஒப்பந்தம்",
@@ -297,7 +297,8 @@
     "expectedMargin": "எதிர்பார்க்கும் லாபம்",
     "contract": "ஒப்பந்தம் + கூடுதல்",
     "moneyIn": "பணம் வந்தது",
-    "pickProjectIn": "இந்தப் பணம் எந்தத் திட்டத்திற்கு?"
+    "pickProjectIn": "இந்தப் பணம் எந்தத் திட்டத்திற்கு?",
+    "downloadsShort": "கோப்புகள்"
   },
   "ptype": {
     "labour": "தொழிலாளர்",
@@ -409,7 +410,7 @@
     "cashBox": "ரொக்கப் பெட்டி",
     "siteMoney": "தளப் பணம்",
     "allPayments": "அனைத்து செலவுகள்",
-    "downloads": "பதிவிறக்கங்கள்"
+    "downloads": "பதிவிறக்கம்"
   },
   "downloads": {
     "title": "பதிவிறக்கங்கள்",

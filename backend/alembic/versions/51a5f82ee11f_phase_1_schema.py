@@ -171,4 +171,6 @@ def downgrade() -> None:
     op.drop_table('users')
     op.drop_index(op.f('ix_otp_codes_phone'), table_name='otp_codes')
     op.drop_table('otp_codes')
+    for t in ('trade', 'milestone_status', 'invite_status', 'project_status', 'language', 'role'):
+        sa.Enum(name=t).drop(op.get_bind(), checkfirst=True)
     # ### end Alembic commands ###

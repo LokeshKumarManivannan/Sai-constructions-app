@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 
 import i18n from '@/i18n';
 import { api, setUnauthorizedHandler } from '@/lib/api';
@@ -40,18 +40,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })();
   }, [signOut]);
 
+  // True once the person taps the language button on the login screen in this session.
+  const pickedOnLogin = useRef(false);
+
   const signIn = useCallback(async (token: string, u: User) => {
     await setToken(token);
-    // Keep the language the person picked on the login screen.
     const lang = i18n.language as Language;
-    if (lang !== u.language) {
+    if (pickedOnLogin.current && lang !== u.language) {
+      // They chose a language on the login screen: remember it.
       u = await api<User>('/me', { method: 'PATCH', body: { language: lang } });
+    } else if (lang !== u.language) {
+      // Otherwise keep the language they chose before (a Tamil reader on a phone set to English stays in Tamil).
+      await i18n.changeLanguage(u.language);
     }
     setUser(u);
   }, []);
 
   const setLanguage = useCallback(
     async (lang: Language) => {
+      if (!user) pickedOnLogin.current = true;
       await i18n.changeLanguage(lang);
       if (user) setUser(await api<User>('/me', { method: 'PATCH', body: { language: lang } }));
     },
