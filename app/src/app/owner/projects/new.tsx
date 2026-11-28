@@ -3,6 +3,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
 import { api } from '@/lib/api';
+import { inviteAndText } from '@/features/project/sendInvite';
 import { rupeesToPaise } from '@/lib/money';
 import { useApi } from '@/lib/useApi';
 import type { Customer, Project } from '@/lib/types';
@@ -56,6 +57,8 @@ export default function NewProject() {
         },
       });
       router.replace(`/owner/projects/${p.id}`);
+      // Invite the customer straight away: the Messages app opens with the text ready to send.
+      await inviteAndText(p.id, t).catch(() => undefined); // the project exists either way; invite again from Overview
     } catch (e) {
       setError((e as Error).message);
     } finally {

@@ -107,8 +107,9 @@
     "stagesDone": "{{done}} of {{total}} stages done",
     "noProjectsYet": "No projects yet. Add your first one with New project.",
     "inviteSms": "Sai Constructions: your house project account is ready. Open this link and log in with this mobile number: {{link}}",
-    "sendSms": "Send as text message",
-    "smsFromPhone": "Opens the Messages app with the text ready; press Send. Works when this app is open on a phone."
+    "sendSmsAgain": "Open the text message again",
+    "smsOpened": "The Messages app opened with the invite. Press Send there.",
+    "smsCopied": "Invite text copied. On a computer the Messages app can't open: paste it into a message to the customer, or invite from the phone."
   },
   "supervisor": {
     "mySites": "My sites",

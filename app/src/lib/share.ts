@@ -22,7 +22,16 @@ export function callNumber(phone: string) {
  *  Uses his normal SMS plan, so no SMS service or WhatsApp Business account is needed. */
 export function textMessage(phone: string, body: string) {
   // "?&body=" works on both Android ("?body=") and iPhone ("&body=").
-  openUrl(`sms:${phone.replace(/[^\d+]/g, '')}?&body=${encodeURIComponent(body)}`);
+  const url = `sms:${phone.replace(/[^\d+]/g, '')}?&body=${encodeURIComponent(body)}`;
+  // In a phone browser, open it in place: a new window after a network call can be blocked as a pop-up.
+  if (Platform.OS === 'web') globalThis.location.href = url;
+  else openUrl(url);
+}
+
+/** A phone (app, or a browser on a phone) can open the Messages app; a computer can't. */
+export function canTextFromHere(): boolean {
+  if (Platform.OS !== 'web') return true;
+  return /Android|iPhone|iPad|iPod|Mobile/i.test(globalThis.navigator?.userAgent ?? '');
 }
 
 export function whatsapp(phone: string) {
